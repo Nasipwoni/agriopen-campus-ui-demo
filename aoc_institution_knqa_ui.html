@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOC — Institution & KNQA Portals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0B2545;--navy2:#1A3A5C;--navy3:#2A5A8A;--sky:#3B82C4;--sky2:#60A8E8;--sky3:#A8D4F5;
+  --purple:#2A1060;--purple2:#4A2080;--purple3:#7A40C0;--lav:#B8A0E8;--lav2:#E8E0FA;
+  --jade:#006B47;--jade3:#00C484;
+  --cream:#F8FAFB;--cream2:#EEF3F8;--cream3:#DDE8F0;
+  --ink:#0A1628;--text2:#3A5070;--text3:#7090B0;--text4:#A0B8D0;
+  --border:#D0DCE8;--border2:#B0C4D8;
+  --white:#FFFFFF;--amber:#C8922A;--amber2:#E8AA3C;
+  --font-h:'Playfair Display',serif;--font-b:'Instrument Sans',sans-serif;
+  --trans:all .2s cubic-bezier(.4,0,.2,1);
+}
+body{font-family:var(--font-b);background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* PORTAL SWITCHER */
+.portal-switcher{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--ink);padding:0;height:44px;display:flex;align-items:center;justify-content:center;gap:0}
+.ps-btn{padding:0 28px;height:44px;border:none;cursor:pointer;font-family:var(--font-b);font-size:12.5px;font-weight:700;letter-spacing:.3px;transition:var(--trans);position:relative}
+.ps-btn.inst{background:var(--navy);color:rgba(255,255,255,.5)}
+.ps-btn.knqa{background:var(--purple);color:rgba(255,255,255,.5)}
+.ps-btn.active{color:#fff}
+.ps-btn.inst.active{background:var(--navy3)}
+.ps-btn.knqa.active{background:var(--purple3)}
+.ps-divider{width:1px;height:24px;background:rgba(255,255,255,.1)}
+.ps-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:0 20px}
+
+/* PORTAL WRAP */
+.portal{display:none}.portal.active{display:flex}
+.shell{display:flex;height:calc(100vh - 44px);overflow:hidden;margin-top:44px}
+
+/* SIDEBAR — shared */
+.sidebar{flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+.sb-head{padding:20px 18px 14px}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.sb-mark{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;font-family:var(--font-h)}
+.sb-title{font-family:var(--font-h);font-size:14px;font-weight:700;color:#fff;line-height:1.2}
+.sb-role-chip{border-radius:8px;padding:8px 12px;margin-bottom:2px}
+.sb-role-tag{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;font-weight:700;opacity:.6}
+.sb-role-name{font-size:12.5px;color:#fff;font-weight:600;margin-top:2px}
+.sb-role-dept{font-size:10.5px;color:rgba(255,255,255,.35);margin-top:1px}
+.sbs{padding:10px 18px 4px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.22);letter-spacing:1.5px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;margin:1px 8px;padding:9px 11px;border-radius:9px;cursor:pointer;color:rgba(255,255,255,.48);font-size:13px;font-weight:500;transition:var(--trans);position:relative}
+.ni:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
+.ni.active svg{opacity:1}
+.nb{margin-left:auto;color:#fff;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:20px}
+.sb-foot{margin-top:auto;padding:14px 10px;border-top:1px solid rgba(255,255,255,.07)}
+.uc{display:flex;align-items:center;gap:9px;padding:8px 10px;background:rgba(255,255,255,.05);border-radius:9px;cursor:pointer;transition:var(--trans)}
+.uc:hover{background:rgba(255,255,255,.09)}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:var(--font-h);flex-shrink:0}
+.ui .un{font-size:12px;color:#fff;font-weight:600}
+.ui .ur{font-size:10px;color:rgba(255,255,255,.35)}
+
+/* INST SIDEBAR */
+.inst .sidebar{width:244px;background:var(--navy)}
+.inst .ni.active{background:rgba(59,130,196,.2);color:var(--sky2);font-weight:700}
+.inst .ni.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--sky);border-radius:2px}
+.inst .sb-role-chip{background:rgba(59,130,196,.2);border:1px solid rgba(59,130,196,.3)}
+.inst .sb-role-tag{color:var(--sky2)}
+.inst .nb{background:var(--sky)}
+
+/* KNQA SIDEBAR */
+.knqa-p .sidebar{width:244px;background:var(--purple)}
+.knqa-p .ni.active{background:rgba(122,64,192,.25);color:var(--lav);font-weight:700}
+.knqa-p .ni.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--purple3);border-radius:2px}
+.knqa-p .sb-role-chip{background:rgba(122,64,192,.25);border:1px solid rgba(122,64,192,.4)}
+.knqa-p .sb-role-tag{color:var(--lav)}
+.knqa-p .nb{background:var(--purple3)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;background:var(--cream);display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.tb-title{font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--ink);flex:1}
+.tb-sub{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:var(--trans);font-family:var(--font-b)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-sky{background:var(--sky);color:#fff}.btn-sky:hover{background:var(--navy3)}
+.btn-purple{background:var(--purple2);color:#fff}.btn-purple:hover{background:var(--purple3)}
+.btn-jade{background:var(--jade);color:#fff}.btn-jade:hover{background:#009A68}
+.btn-amber{background:var(--amber);color:#fff}.btn-amber:hover{background:var(--amber2)}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}.btn-outline:hover{border-color:var(--sky);color:var(--navy)}
+.btn-ghost{background:transparent;color:var(--text3);padding:7px 11px;font-weight:500}.btn-ghost:hover{background:var(--cream2);color:var(--ink)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-red{background:#8B1A1A;color:#fff}.btn-red:hover{background:#A82020}
+.icon-btn{width:36px;height:36px;border-radius:9px;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--trans);position:relative}
+.icon-btn:hover{background:var(--cream2)}
+.icon-btn svg{width:15px;height:15px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round}
+.ndot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;border:1.5px solid #fff}
+.inst .ndot{background:var(--sky)}
+.knqa-p .ndot{background:var(--purple3)}
+
+/* PAGE */
+.page{display:none;padding:22px 24px;animation:fadeIn .22s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* STAT STRIPS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:15px 17px;position:relative;overflow:hidden;transition:var(--trans)}
+.sc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 14px 14px}
+.sc.s::after{background:var(--sky)}.sc.n::after{background:var(--navy)}.sc.j::after{background:var(--jade3)}.sc.a::after{background:var(--amber2)}.sc.p::after{background:var(--purple3)}.sc.la::after{background:var(--lav)}
+.sc-ico{font-size:17px;margin-bottom:7px}
+.sc-val{font-family:var(--font-h);font-size:24px;font-weight:700;color:var(--ink);line-height:1}
+.sc-lbl{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
+.sc-sub{font-size:10px;font-weight:700;margin-top:4px}
+.sc.s .sc-sub{color:var(--sky)}.sc.n .sc-sub{color:var(--navy2)}.sc.j .sc-sub{color:var(--jade)}.sc.a .sc-sub{color:var(--amber)}.sc.p .sc-sub{color:var(--purple2)}.sc.la .sc-sub{color:var(--purple3)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:var(--trans)}
+.card:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:var(--font-h);font-size:14px;font-weight:700;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.card-b{padding:16px 18px}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;background:var(--cream2);border-bottom:1px solid var(--border)}
+td{padding:11px 13px;font-size:13px;color:var(--ink);border-bottom:1px solid var(--cream2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(59,130,196,.03)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.bg{background:rgba(0,107,71,.1);color:var(--jade)}.ba{background:rgba(200,146,42,.12);color:var(--amber)}.bb{background:rgba(26,74,107,.1);color:var(--navy2)}.br{background:rgba(139,26,26,.1);color:#8B1A1A}.bgr{background:var(--cream2);color:var(--text3)}.bp{background:rgba(74,32,128,.12);color:var(--purple2)}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* PROGRESS */
+.prog{height:7px;background:var(--cream3);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s}
+.pf-sky{background:linear-gradient(90deg,var(--sky),var(--sky2))}
+.pf-jade{background:linear-gradient(90deg,var(--jade),var(--jade3))}
+.pf-pur{background:linear-gradient(90deg,var(--purple2),var(--purple3))}
+.pf-amb{background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.pf-red{background:linear-gradient(90deg,#8B1A1A,#C02020)}
+
+/* LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.tabs{display:flex;gap:2px;background:var(--cream2);padding:4px;border-radius:10px;margin-bottom:16px}
+.tab{padding:6px 15px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text2);border:none;background:none;font-family:var(--font-b);transition:var(--trans)}
+.tab.active{background:var(--white);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.alert{padding:11px 14px;border-radius:9px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;line-height:1.5}
+.al-i{background:rgba(26,74,107,.07);border:1px solid rgba(26,74,107,.18);color:var(--navy2)}
+.al-s{background:rgba(0,107,71,.07);border:1px solid rgba(0,107,71,.18);color:var(--jade)}
+.al-w{background:rgba(200,146,42,.07);border:1px solid rgba(200,146,42,.2);color:#7A5A00}
+.al-r{background:rgba(139,26,26,.07);border:1px solid rgba(139,26,26,.15);color:#8B1A1A}
+.fg{display:flex;flex-direction:column;gap:5px}
+label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.2px}
+input,select,textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--ink);font-family:var(--font-b);background:var(--white);transition:var(--trans);outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--sky);box-shadow:0 0 0 3px rgba(59,130,196,.12)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sp{height:1px;background:var(--border);margin:14px 0}
+.knqa-ref{font-family:monospace;font-size:12px;background:var(--cream2);padding:4px 9px;border-radius:6px;color:var(--navy)}
+</style>
+</head>
+<body>
+
+<!-- PORTAL SWITCHER -->
+<div class="portal-switcher">
+  <span class="ps-label">AOC Portals</span>
+  <div class="ps-divider"></div>
+  <button class="ps-btn inst active" onclick="switchPortal('inst')">🏛️ Institution Admin</button>
+  <div class="ps-divider"></div>
+  <button class="ps-btn knqa" onclick="switchPortal('knqa')">⚖️ KNQA / MoE</button>
+  <div class="ps-divider"></div>
+  <span class="ps-label" style="font-size:10px">← Switch portal</span>
+</div>
+
+<!-- ══════════════════════════════════════ INSTITUTION PORTAL ══ -->
+<div class="portal inst active" id="portal-inst">
+<div class="shell">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <div class="sb-mark" style="background:var(--navy2)">🏛</div>
+      <div class="sb-title">Institution<br>Admin Portal</div>
+    </div>
+    <div class="sb-role-chip">
+      <div class="sb-role-tag">Academic Registrar</div>
+      <div class="sb-role-name">Dr. Amina Mwangi</div>
+      <div class="sb-role-dept">Egerton University</div>
+    </div>
+  </div>
+  <div class="sbs">Overview</div>
+  <div class="ni active" onclick="showInstPage('idashboard')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+  <div class="sbs">Academic</div>
+  <div class="ni" onclick="showInstPage('icatalogue')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>Course Catalogue<span class="nb">4</span></div>
+  <div class="ni" onclick="showInstPage('ienrolment')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3M13.5 19.5H6.75a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 016.75 4.5h7.5"/></svg>Enrolment Management</div>
+  <div class="ni" onclick="showInstPage('ierp')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>ERP Integration</div>
+  <div class="sbs">Staff</div>
+  <div class="ni" onclick="showInstPage('ilecturers')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>Lecturers &amp; Staff</div>
+  <div class="sbs">Quality & Compliance</div>
+  <div class="ni" onclick="showInstPage('iaccreditation')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Accreditation<span class="nb">2</span></div>
+  <div class="ni" onclick="showInstPage('iobe')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>OBE &amp; Outcomes</div>
+  <div class="ni" onclick="showInstPage('ianalytics')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>Reports &amp; Analytics</div>
+  <div class="sb-foot">
+    <div class="uc"><div class="av" style="background:linear-gradient(135deg,var(--navy2),var(--sky))">AM</div><div class="ui"><div class="un">Dr. A. Mwangi</div><div class="ur">Registrar · Egerton</div></div></div>
+  </div>
+</nav>
+<div class="main" id="inst-main">
+  <div class="topbar">
+    <div><div class="tb-title" id="inst-title">Institution Dashboard</div><div class="tb-sub" id="inst-sub">AOC Institution Admin · Egerton University</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="icon-btn" style="position:relative"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div class="ndot"></div></button>
+      <button class="btn btn-navy btn-sm" onclick="showInstPage('icatalogue')">+ Add Course</button>
+    </div>
+  </div>
+
+  <!-- INST DASHBOARD -->
+  <div class="page active" id="page-idashboard">
+    <div class="stat-row">
+      <div class="sc s"><div class="sc-ico">👥</div><div class="sc-val">842</div><div class="sc-lbl">Total Enrolments</div><div class="sc-sub">↑ 12% this term</div></div>
+      <div class="sc j"><div class="sc-ico">🎓</div><div class="sc-val">187</div><div class="sc-lbl">Credentials Issued</div><div class="sc-sub">KNQA registered</div></div>
+      <div class="sc n"><div class="sc-ico">📚</div><div class="sc-val">4</div><div class="sc-lbl">Active Courses</div><div class="sc-sub">AOC platform</div></div>
+      <div class="sc a"><div class="sc-ico">✅</div><div class="sc-val">94%</div><div class="sc-lbl">Accreditation Score</div><div class="sc-sub">KNQA compliant</div></div>
+    </div>
+    <div class="g21">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Course Performance — Egerton University</div><button class="btn btn-ghost btn-sm" onclick="showInstPage('ianalytics')">Full report →</button></div>
+        <div class="tw">
+          <table><thead><tr><th>Course</th><th>Enrolments</th><th>Completion</th><th>Pass Rate</th><th>KNQA Creds</th><th>Status</th></tr></thead><tbody>
+            <tr><td><div style="font-weight:600">Soil Science & Fertility Mgmt</div><div style="font-size:11px;color:var(--text3)">5 ECTS · NQF 5 · Prof. Kariuki</div></td><td>248</td><td><div style="display:flex;align-items:center;gap:7px"><div class="prog" style="width:70px"><div class="prog-fill pf-jade" style="width:68%"></div></div>68%</div></td><td style="font-weight:700;color:var(--jade)">87%</td><td>34</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+            <tr><td><div style="font-weight:600">Agribusiness & Value Chain</div><div style="font-size:11px;color:var(--text3)">5 ECTS · NQF 5 · Dr. Ochieng</div></td><td>192</td><td><div style="display:flex;align-items:center;gap:7px"><div class="prog" style="width:70px"><div class="prog-fill pf-sky" style="width:45%"></div></div>45%</div></td><td style="font-weight:700;color:var(--sky)">79%</td><td>18</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+            <tr><td><div style="font-weight:600">Water Management & Irrigation</div><div style="font-size:11px;color:var(--text3)">3 ECTS · NQF 5 · New course</div></td><td>180</td><td><div style="display:flex;align-items:center;gap:7px"><div class="prog" style="width:70px"><div class="prog-fill pf-sky" style="width:22%"></div></div>22%</div></td><td style="color:var(--text3)">—</td><td>0</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+            <tr><td><div style="font-weight:600">Climate-Smart Agriculture</div><div style="font-size:11px;color:var(--text3)">5 ECTS · NQF 5 · Joint (all HEIs)</div></td><td>222</td><td><div style="display:flex;align-items:center;gap:7px"><div class="prog" style="width:70px"><div class="prog-fill pf-amb" style="width:15%"></div></div>15%</div></td><td style="color:var(--text3)">—</td><td>0</td><td><span class="badge ba"><span class="dot"></span> Early</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="card-h"><div class="card-title">Accreditation Readiness</div></div>
+          <div class="card-b">
+            <div style="font-family:var(--font-h);font-size:36px;font-weight:700;color:var(--jade);text-align:center;margin:8px 0">94%</div>
+            <div class="prog" style="margin-bottom:12px"><div class="prog-fill pf-jade" style="width:94%"></div></div>
+            <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+              <div style="display:flex;justify-content:space-between"><span>Curriculum mapping</span><span style="color:var(--jade);font-weight:700">✓ Complete</span></div>
+              <div style="display:flex;justify-content:space-between"><span>CLO-PLO alignment</span><span style="color:var(--jade);font-weight:700">✓ Complete</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Outcome reports</span><span style="color:var(--amber);font-weight:700">⏳ 2 pending</span></div>
+              <div style="display:flex;justify-content:space-between"><span>External examiner</span><span style="color:var(--jade);font-weight:700">✓ Appointed</span></div>
+            </div>
+            <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;margin-top:12px" onclick="showInstPage('iaccreditation')">View KNQA Submission</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-title">ERP Integration</div><span class="badge bg">LTI 1.3 Active</span></div>
+          <div class="card-b" style="padding:12px 16px;font-size:12.5px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text3)">ERP System</span><span style="font-weight:700">Banner (Ellucian)</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text3)">Last sync</span><span style="font-weight:700;color:var(--jade)">Today 06:00 AM</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--text3)">Grade passback</span><span style="font-weight:700;color:var(--jade)">✓ 187 synced</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Errors</span><span style="font-weight:700;color:var(--jade)">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCREDITATION PAGE -->
+  <div class="page" id="page-iaccreditation">
+    <div class="alert al-w">⏳ 2 accreditation documents require completion before the October 30 KNQA submission deadline.</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-h"><div class="card-title">KNQA Accreditation Submission</div><span class="badge ba">2 items pending</span></div>
+        <div class="tw">
+          <table><thead><tr><th>Requirement</th><th>Document</th><th>Status</th><th>Action</th></tr></thead><tbody>
+            <tr><td>Curriculum framework</td><td>AOC-CBE-Framework-2026.pdf</td><td><span class="badge bg"><span class="dot"></span> Submitted</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+            <tr><td>Programme learning outcomes</td><td>PLO-Mapping-Egerton.xlsx</td><td><span class="badge bg"><span class="dot"></span> Submitted</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+            <tr><td>External examiner report</td><td>Examiner-Report-Q3.pdf</td><td><span class="badge bg"><span class="dot"></span> Submitted</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+            <tr><td>Outcome attainment report</td><td>OBE-Attainment-Sep2026.pdf</td><td><span class="badge ba"><span class="dot"></span> Pending</span></td><td><button class="btn btn-navy btn-sm">Upload</button></td></tr>
+            <tr><td>Quality assurance checklist</td><td>QA-Checklist-Egerton.pdf</td><td><span class="badge ba"><span class="dot"></span> Pending</span></td><td><button class="btn btn-navy btn-sm">Upload</button></td></tr>
+          </tbody></table>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--cream2);display:flex;justify-content:space-between;align-items:center"><span style="font-size:12.5px;color:var(--text3)">Submission deadline: Oct 30, 2026</span><button class="btn btn-jade btn-sm">Submit to KNQA →</button></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">Programme Mapping — OBE Alignment</div></div>
+        <div class="card-b">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>PLO 1 — Soil & Crop Science</span><span style="font-weight:700;color:var(--jade)">100%</span></div><div class="prog"><div class="prog-fill pf-jade" style="width:100%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>PLO 2 — Agribusiness</span><span style="font-weight:700;color:var(--jade)">80%</span></div><div class="prog"><div class="prog-fill pf-jade" style="width:80%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>PLO 3 — Water Management</span><span style="font-weight:700;color:var(--sky)">60%</span></div><div class="prog"><div class="prog-fill pf-sky" style="width:60%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>PLO 4 — Climate-Smart</span><span style="font-weight:700;color:var(--amber)">30%</span></div><div class="prog"><div class="prog-fill pf-amb" style="width:30%"></div></div></div>
+          </div>
+          <div class="sp"></div>
+          <div style="font-size:12.5px;color:var(--text3);line-height:1.5">KNQA requires all PLOs to reach ≥80% attainment across the cohort before full programme accreditation is granted.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENROLMENT -->
+  <div class="page" id="page-ienrolment">
+    <div class="stat-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="sc s"><div class="sc-ico">📥</div><div class="sc-val">842</div><div class="sc-lbl">Total Enrolled</div><div class="sc-sub">All courses</div></div>
+      <div class="sc j"><div class="sc-ico">✓</div><div class="sc-val">98.2%</div><div class="sc-lbl">IPRS Verified</div><div class="sc-sub">15 pending</div></div>
+      <div class="sc a"><div class="sc-ico">⏳</div><div class="sc-val">15</div><div class="sc-lbl">Pending Verification</div><div class="sc-sub">IPRS/SIS check</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="card-title">Enrolment Register</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm">⬇ Export</button><button class="btn btn-navy btn-sm">+ Manual Enrol</button></div></div>
+      <div class="tw">
+        <table><thead><tr><th>Student</th><th>Course</th><th>IPRS Status</th><th>SIS Match</th><th>Enrolled</th><th>Fee Status</th></tr></thead><tbody>
+          <tr><td><div style="font-weight:600">Wanjiru Kamau</div><div style="font-family:monospace;font-size:10.5px;color:var(--text3)">AOC-LRN-00341</div></td><td>Soil Science</td><td><span class="badge bg">✓ Verified</span></td><td><span class="badge bg">✓ Banner match</span></td><td>Mar 2026</td><td><span class="badge bg">Waived</span></td></tr>
+          <tr><td><div style="font-weight:600">David Kamau</div><div style="font-family:monospace;font-size:10.5px;color:var(--text3)">AOC-LRN-00218</div></td><td>Soil Science</td><td><span class="badge bg">✓ Verified</span></td><td><span class="badge bg">✓ Banner match</span></td><td>Mar 2026</td><td><span class="badge bg">Waived</span></td></tr>
+          <tr><td><div style="font-weight:600">Grace Muthoni</div><div style="font-family:monospace;font-size:10.5px;color:var(--text3)">AOC-LRN-00481</div></td><td>Agribusiness</td><td><span class="badge ba">⏳ Pending</span></td><td><span class="badge bgr">Not matched</span></td><td>Sep 2026</td><td><span class="badge bg">Waived</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="page" id="page-ianalytics">
+    <div class="three-col">
+      <div class="card"><div class="card-h"><div class="card-title">Enrolment by County</div></div><div class="card-b"><div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Nairobi</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-sky" style="width:58%"></div></div><span style="font-weight:700">490</span></div></div><div style="display:flex;justify-content:space-between"><span>Nakuru</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-jade" style="width:37%"></div></div><span style="font-weight:700">312</span></div></div><div style="display:flex;justify-content:space-between"><span>Kisumu</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-amb" style="width:34%"></div></div><span style="font-weight:700">288</span></div></div><div style="display:flex;justify-content:space-between"><span>Other</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-sky" style="width:89%"></div></div><span style="font-weight:700">752</span></div></div></div></div></div>
+      <div class="card"><div class="card-h"><div class="card-title">Gender Split</div></div><div class="card-b"><div style="text-align:center"><div style="font-size:36px;font-weight:800;color:var(--sky);font-family:var(--font-h);margin:8px 0">60%</div><div style="font-size:12px;color:var(--text3)">Female learners</div><div class="prog" style="margin:12px 0"><div class="prog-fill pf-sky" style="width:60%"></div></div><div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--sky);font-weight:700">Female: 505</span><span style="color:var(--navy);font-weight:700">Male: 337</span></div></div></div></div>
+      <div class="card"><div class="card-h"><div class="card-title">KNQA Credentials</div></div><div class="card-b"><div style="font-size:36px;font-weight:800;color:var(--jade);font-family:var(--font-h);text-align:center;margin:8px 0">187</div><div style="display:flex;flex-direction:column;gap:6px;font-size:12px"><div style="display:flex;justify-content:space-between"><span>Micro-credentials</span><span style="font-weight:700">142</span></div><div style="display:flex;justify-content:space-between"><span>Certificates</span><span style="font-weight:700">38</span></div><div style="display:flex;justify-content:space-between"><span>Pending</span><span style="font-weight:700;color:var(--amber)">7</span></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- LECTURERS -->
+  <div class="page" id="page-ilecturers">
+    <div class="card">
+      <div class="card-h"><div class="card-title">Lecturer Directory</div><button class="btn btn-navy btn-sm">+ Add Lecturer</button></div>
+      <div class="tw">
+        <table><thead><tr><th>Name</th><th>Department</th><th>Courses</th><th>Learners</th><th>Avg Score</th><th>Status</th></tr></thead><tbody>
+          <tr><td><div style="font-weight:600">Prof. James Kariuki</div><div style="font-size:11px;color:var(--text3)">james.kariuki@uon.ac.ke</div></td><td>Soil Science</td><td>2</td><td>148</td><td style="font-weight:700;color:var(--jade)">82%</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+          <tr><td><div style="font-weight:600">Dr. Mary Ochieng</div><div style="font-size:11px;color:var(--text3)">m.ochieng@laikipia.ac.ke</div></td><td>Agribusiness</td><td>1</td><td>192</td><td style="font-weight:700;color:var(--jade)">76%</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+          <tr><td><div style="font-weight:600">Dr. Peter Mutua</div><div style="font-size:11px;color:var(--text3)">p.mutua@egerton.ac.ke</div></td><td>Crop Science</td><td>2</td><td>52</td><td style="font-weight:700;color:var(--sky)">74%</td><td><span class="badge bg"><span class="dot"></span> Active</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBE -->
+  <div class="page" id="page-iobe">
+    <div class="alert al-s">✓ Egerton University's PLO-to-competency mapping is KNQA-compliant. Last reviewed: September 2026.</div>
+    <div class="card">
+      <div class="card-h"><div class="card-title">Programme Outcome Report — Soil Science</div><button class="btn btn-outline btn-sm">⬇ Export to KNQA</button></div>
+      <div class="tw">
+        <table><thead><tr><th>Programme Learning Outcome</th><th>KNQA Competency</th><th>Cohort Attainment</th><th>KNQA Threshold</th><th>Status</th></tr></thead><tbody>
+          <tr><td>PLO 1 — Soil sampling & analysis</td><td><span class="knqa-ref">SOI-101</span></td><td style="font-weight:700;color:var(--jade)">91%</td><td>80%</td><td><span class="badge bg">✓ Met</span></td></tr>
+          <tr><td>PLO 2 — Fertility management</td><td><span class="knqa-ref">SOI-102</span></td><td style="font-weight:700;color:var(--jade)">85%</td><td>80%</td><td><span class="badge bg">✓ Met</span></td></tr>
+          <tr><td>PLO 3 — Fertiliser application</td><td><span class="knqa-ref">SOI-103</span></td><td style="font-weight:700;color:var(--sky)">68%</td><td>80%</td><td><span class="badge br">✗ Below</span></td></tr>
+          <tr><td>PLO 4 — Sustainable soil use</td><td><span class="knqa-ref">SOI-104</span></td><td style="color:var(--text3)">In progress</td><td>80%</td><td><span class="badge bgr">Pending</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+</div></div></div>
+
+<!-- ══════════════════════════════════════ KNQA PORTAL ══ -->
+<div class="portal knqa-p" id="portal-knqa">
+<div class="shell">
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <div class="sb-mark" style="background:var(--purple2)">⚖</div>
+      <div class="sb-title">KNQA / MoE<br>National Portal</div>
+    </div>
+    <div class="sb-role-chip">
+      <div class="sb-role-tag">National Administrator</div>
+      <div class="sb-role-name">Dr. Catherine Wambua</div>
+      <div class="sb-role-dept">KNQA · Qualifications Division</div>
+    </div>
+  </div>
+  <div class="sbs">Overview</div>
+  <div class="ni active" onclick="showKnqaPage('kdashboard')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>National Dashboard</div>
+  <div class="sbs">Qualifications</div>
+  <div class="ni" onclick="showKnqaPage('kqualifications')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Qualifications Registry<span class="nb">1,847</span></div>
+  <div class="ni" onclick="showKnqaPage('krpl')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>RPL Review Queue<span class="nb">24</span></div>
+  <div class="ni" onclick="showKnqaPage('kverify')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Credential Verification</div>
+  <div class="sbs">Accreditation</div>
+  <div class="ni" onclick="showKnqaPage('kaccreditation')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>HEI Submissions<span class="nb">3</span></div>
+  <div class="ni" onclick="showKnqaPage('kframeworks')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z"/><path d="M3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25z"/><path d="M13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25A2.25 2.25 0 0113.5 8.25V6z"/></svg>NQF Frameworks</div>
+  <div class="sbs">Analytics</div>
+  <div class="ni" onclick="showKnqaPage('kanalytics')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>National Analytics</div>
+  <div class="ni" onclick="showKnqaPage('klmis')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>KLMIS Labour Data</div>
+  <div class="sbs">Audit</div>
+  <div class="ni" onclick="showKnqaPage('kaudit')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Audit Logs</div>
+  <div class="sb-foot">
+    <div class="uc"><div class="av" style="background:linear-gradient(135deg,var(--purple2),var(--purple3))">CW</div><div class="ui"><div class="un">Dr. C. Wambua</div><div class="ur">KNQA · National Admin</div></div></div>
+  </div>
+</nav>
+
+<div class="main" id="knqa-main">
+  <div class="topbar">
+    <div><div class="tb-title" id="knqa-title">National Dashboard</div><div class="tb-sub" id="knqa-sub">KNQA National Qualifications Registry · AOC Platform</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="icon-btn" style="position:relative"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div class="ndot"></div></button>
+      <button class="btn btn-purple btn-sm">⬇ Export NQD Report</button>
+    </div>
+  </div>
+
+  <!-- KNQA DASHBOARD -->
+  <div class="page active" id="page-kdashboard">
+    <div class="stat-row">
+      <div class="sc p"><div class="sc-ico">📋</div><div class="sc-val">1,847</div><div class="sc-lbl">Qualifications Registered</div><div class="sc-sub">↑ 342 this quarter</div></div>
+      <div class="sc la"><div class="sc-ico">🏛️</div><div class="sc-val">6</div><div class="sc-lbl">Partner HEIs Active</div><div class="sc-sub">PAQAF compliant</div></div>
+      <div class="sc j"><div class="sc-ico">✅</div><div class="sc-val">24</div><div class="sc-lbl">RPL Reviews Pending</div><div class="sc-sub">Avg 18 days each</div></div>
+      <div class="sc a"><div class="sc-ico">🎓</div><div class="sc-val">4,280</div><div class="sc-lbl">Active Learners (AOC)</div><div class="sc-sub">National total</div></div>
+    </div>
+    <div class="g21">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Qualification Registrations — Q3 2026</div><button class="btn btn-ghost btn-sm" onclick="showKnqaPage('kqualifications')">Full registry →</button></div>
+        <div class="tw">
+          <table><thead><tr><th>HEI</th><th>Micro-credentials</th><th>Certificates</th><th>RPL Awards</th><th>Total</th><th>Trend</th></tr></thead><tbody>
+            <tr><td style="font-weight:600">Egerton University</td><td>142</td><td>38</td><td>7</td><td style="font-weight:800;color:var(--purple2)">187</td><td style="color:var(--jade);font-weight:700">↑ 22%</td></tr>
+            <tr><td style="font-weight:600">University of Nairobi</td><td>198</td><td>52</td><td>12</td><td style="font-weight:800;color:var(--purple2)">262</td><td style="color:var(--jade);font-weight:700">↑ 18%</td></tr>
+            <tr><td style="font-weight:600">SEKU</td><td>88</td><td>14</td><td>4</td><td style="font-weight:800;color:var(--purple2)">106</td><td style="color:var(--jade);font-weight:700">↑ 31%</td></tr>
+            <tr><td style="font-weight:600">Laikipia University</td><td>74</td><td>18</td><td>3</td><td style="font-weight:800;color:var(--purple2)">95</td><td style="color:var(--jade);font-weight:700">↑ 14%</td></tr>
+            <tr><td style="font-weight:600">HAMK + NHL Stenden</td><td>28</td><td>8</td><td>0</td><td style="font-weight:800;color:var(--purple2)">36</td><td style="color:var(--sky);font-weight:700">↑ 8%</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="card-h"><div class="card-title">Accreditation Queue</div><span class="badge bp">3 pending</span></div>
+          <div class="card-b" style="padding:12px 14px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="padding:10px;background:rgba(200,146,42,.06);border:1px solid rgba(200,146,42,.2);border-radius:8px"><div style="font-size:12.5px;font-weight:700;color:#7A5A00">Egerton University</div><div style="font-size:11px;color:var(--text3);margin-top:2px">2 docs pending · Due Oct 30</div><button class="btn btn-amber btn-sm" style="margin-top:8px;width:100%;justify-content:center" onclick="showKnqaPage('kaccreditation')">Review</button></div>
+              <div style="padding:10px;background:var(--cream2);border-radius:8px"><div style="font-size:12.5px;font-weight:700">SEKU</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Complete · Awaiting approval</div><button class="btn btn-jade btn-sm" style="margin-top:8px;width:100%;justify-content:center">Approve</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-title">API Status</div><span class="badge bg">All systems live</span></div>
+          <div class="card-b" style="padding:10px 14px;font-size:12px">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><span>KNQA qual. API</span><span style="display:flex;align-items:center;gap:4px;color:var(--jade);font-weight:700"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span> 99.98%</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span>IPRS verify API</span><span style="display:flex;align-items:center;gap:4px;color:var(--jade);font-weight:700"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span> 99.94%</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span>eCitizen SSO</span><span style="display:flex;align-items:center;gap:4px;color:var(--jade);font-weight:700"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span> 100%</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span>Last qualification push</span><span style="font-weight:700">Today 08:34 AM</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUALIFICATIONS REGISTRY -->
+  <div class="page" id="page-kqualifications">
+    <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+      <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:9px;padding:0 12px;height:36px"><svg style="width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input style="border:none;background:none;padding:0;font-size:13px;outline:none;width:100%" placeholder="Search by KNQA ref, learner ID, or National ID…"></div>
+      <select style="width:180px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:12.5px"><option>All HEIs</option><option>Egerton</option><option>UoN</option><option>SEKU</option></select>
+      <select style="width:150px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:12.5px"><option>All Types</option><option>Micro-credential</option><option>Certificate</option><option>RPL Award</option></select>
+      <button class="btn btn-purple btn-sm">⬇ Export NQD</button>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="card-title">National Qualifications Database — AOC Platform</div><span style="font-size:12.5px;color:var(--text3)">1,847 records</span></div>
+      <div class="tw">
+        <table><thead><tr><th>KNQA Reference</th><th>Learner</th><th>National ID</th><th>Qualification</th><th>HEI</th><th>NQF Level</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>
+          <tr><td><span class="knqa-ref" style="color:var(--purple2)">KNQA-2026-00912847</span></td><td style="font-weight:600">Wanjiru Kamau</td><td style="font-family:monospace;font-size:11.5px">12345678</td><td>Soil Science & Fertility Mgmt</td><td>UoN</td><td><span class="badge bp">NQF 5</span></td><td>Aug 30</td><td><span class="badge bg"><span class="dot"></span> Active</span></td><td><button class="btn btn-ghost btn-sm">Verify</button></td></tr>
+          <tr><td><span class="knqa-ref" style="color:var(--purple2)">KNQA-2026-00741223</span></td><td style="font-weight:600">Wanjiru Kamau</td><td style="font-family:monospace;font-size:11.5px">12345678</td><td>Crop Production & Management</td><td>SEKU</td><td><span class="badge bb">NQF 4</span></td><td>Jun 15</td><td><span class="badge bg"><span class="dot"></span> Active</span></td><td><button class="btn btn-ghost btn-sm">Verify</button></td></tr>
+          <tr><td><span class="knqa-ref" style="color:var(--purple2)">KNQA-2026-00698104</span></td><td style="font-weight:600">Akinyi Odhiambo</td><td style="font-family:monospace;font-size:11.5px">23456789</td><td>Soil Science & Fertility Mgmt</td><td>UoN</td><td><span class="badge bp">NQF 5</span></td><td>Aug 30</td><td><span class="badge bg"><span class="dot"></span> Active</span></td><td><button class="btn btn-ghost btn-sm">Verify</button></td></tr>
+          <tr><td><span class="knqa-ref" style="color:var(--purple3)">RPL-AOC-2026-0041</span></td><td style="font-weight:600">Wanjiru Kamau</td><td style="font-family:monospace;font-size:11.5px">12345678</td><td>RPL — Crop Pest Mgmt (CROP-201)</td><td>KNQA</td><td><span class="badge bb">NQF 4</span></td><td>Sep 1</td><td><span class="badge ba"><span class="dot"></span> Under Review</span></td><td><button class="btn btn-purple btn-sm">Decide</button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RPL REVIEW -->
+  <div class="page" id="page-krpl">
+    <div class="alert al-w">⏳ 24 RPL applications require KNQA assessor decision. Average review time target: 30 days. Oldest application: 24 days old.</div>
+    <div class="card">
+      <div class="card-h"><div class="card-title">RPL Assessment Queue — National</div><span class="badge bp">24 pending</span></div>
+      <div class="tw">
+        <table><thead><tr><th>Application ID</th><th>Applicant</th><th>Competency Claimed</th><th>Assessor</th><th>Evidence</th><th>Days Open</th><th>Decision</th></tr></thead><tbody>
+          <tr><td><span class="knqa-ref">RPL-AOC-2026-0041</span></td><td><div style="font-weight:600">Wanjiru Kamau</div><div style="font-size:10.5px;font-family:monospace;color:var(--text3)">ID: 12345678</div></td><td><span class="badge bb">CROP-201</span> <span class="badge bb">SOI-101</span></td><td>Dr. A. Mutua</td><td><span class="badge bg">5/6 items ✓</span></td><td style="font-weight:700;color:var(--amber)">21 days</td><td><div style="display:flex;gap:6px"><button class="btn btn-jade btn-sm">Approve</button><button class="btn btn-red btn-sm">Reject</button></div></td></tr>
+          <tr><td><span class="knqa-ref">RPL-AOC-2026-0038</span></td><td><div style="font-weight:600">Peter Njoroge</div><div style="font-size:10.5px;font-family:monospace;color:var(--text3)">ID: 34567890</div></td><td><span class="badge bb">IRR-101</span></td><td>Prof. Kariuki</td><td><span class="badge bg">3/3 items ✓</span></td><td style="font-weight:700;color:#B22222">24 days</td><td><div style="display:flex;gap:6px"><button class="btn btn-jade btn-sm">Approve</button><button class="btn btn-red btn-sm">Reject</button></div></td></tr>
+          <tr><td><span class="knqa-ref">RPL-AOC-2026-0035</span></td><td><div style="font-weight:600">Grace Muthoni</div><div style="font-size:10.5px;font-family:monospace;color:var(--text3)">ID: 45678901</div></td><td><span class="badge bb">CROP-201</span></td><td>Unassigned</td><td><span class="badge br">2/6 items ⚠</span></td><td style="font-weight:700;color:var(--amber)">14 days</td><td><button class="btn btn-outline btn-sm">Request more evidence</button></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDENTIAL VERIFY -->
+  <div class="page" id="page-kverify">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Verify a Qualification</div></div>
+        <div class="card-b">
+          <div class="fg" style="margin-bottom:12px"><label>KNQA Reference Number or National ID</label><input placeholder="e.g. KNQA-2026-00912847 or 12345678"></div>
+          <button class="btn btn-purple" style="width:100%;justify-content:center">Verify in National Database</button>
+          <div style="margin-top:16px;padding:16px;background:var(--lav2);border:1px solid rgba(74,32,128,.2);border-radius:10px">
+            <div style="font-size:11.5px;font-weight:800;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">✓ VERIFIED — Active Qualification</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px">
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">KNQA Reference</span><span class="knqa-ref">KNQA-2026-00912847</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Learner Name</span><span style="font-weight:700">Wanjiru Kamau</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Qualification</span><span style="font-weight:700">Soil Science & Fertility Management</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Issuing HEI</span><span style="font-weight:700">University of Nairobi</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">NQF Level</span><span style="font-weight:700">Level 5</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">ECTS Credits</span><span style="font-weight:700">5</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Issued Date</span><span style="font-weight:700">August 30, 2026</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Status</span><span style="font-weight:800;color:var(--jade)">ACTIVE ✓</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">Recent Verifications</div><span style="font-size:11.5px;color:var(--text3)">Last 24 hours</span></div>
+        <div class="tw">
+          <table><thead><tr><th>Time</th><th>Reference</th><th>Requester</th><th>Result</th></tr></thead><tbody>
+            <tr><td style="font-size:11px">09:42 AM</td><td><span class="knqa-ref" style="font-size:10.5px">KNQA-2026-00912847</span></td><td>KilimoTech HR</td><td><span class="badge bg">Valid</span></td></tr>
+            <tr><td style="font-size:11px">08:15 AM</td><td><span class="knqa-ref" style="font-size:10.5px">KNQA-2026-00741223</span></td><td>Min. of Agriculture</td><td><span class="badge bg">Valid</span></td></tr>
+            <tr><td style="font-size:11px">Yesterday</td><td><span class="knqa-ref" style="font-size:10.5px">KNQA-2026-00498210</span></td><td>KUCCPS</td><td><span class="badge bg">Valid</span></td></tr>
+            <tr><td style="font-size:11px">Yesterday</td><td><span class="knqa-ref" style="font-size:10.5px">KNQA-2025-01122490</span></td><td>Equity Bank HR</td><td><span class="badge br">Revoked</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCREDITATION REVIEW -->
+  <div class="page" id="page-kaccreditation">
+    <div class="alert al-i">ℹ You are reviewing Egerton University's AOC accreditation submission. Deadline: October 30, 2026. 2 documents outstanding.</div>
+    <div class="g21">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Egerton University — Accreditation Review</div><div style="display:flex;gap:8px"><button class="btn btn-red btn-sm">Reject</button><button class="btn btn-jade btn-sm">Approve Submission</button></div></div>
+        <div class="tw">
+          <table><thead><tr><th>Document</th><th>Type</th><th>Received</th><th>KNQA Review</th><th>Action</th></tr></thead><tbody>
+            <tr><td>AOC-CBE-Framework-2026.pdf</td><td>Curriculum</td><td>Sep 5</td><td><span class="badge bg">✓ Approved</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+            <tr><td>PLO-Mapping-Egerton.xlsx</td><td>OBE Mapping</td><td>Sep 5</td><td><span class="badge bg">✓ Approved</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+            <tr><td>Examiner-Report-Q3.pdf</td><td>External Examiner</td><td>Sep 8</td><td><span class="badge ba">⏳ Under Review</span></td><td><button class="btn btn-purple btn-sm">Review Now</button></td></tr>
+            <tr><td>OBE-Attainment-Sep2026.pdf</td><td>OBE Report</td><td>—</td><td><span class="badge br">Not received</span></td><td><button class="btn btn-outline btn-sm">Request</button></td></tr>
+            <tr><td>QA-Checklist-Egerton.pdf</td><td>QA Checklist</td><td>—</td><td><span class="badge br">Not received</span></td><td><button class="btn btn-outline btn-sm">Request</button></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">Review Notes</div></div>
+        <div class="card-b">
+          <textarea style="width:100%;min-height:120px;margin-bottom:12px" placeholder="Add review notes for Egerton University…">PLO 3 attainment at 68% is below the required 80% threshold. Institution must remediate before full accreditation can be granted. Request updated OBE attainment report and corrective action plan.</textarea>
+          <button class="btn btn-amber" style="width:100%;justify-content:center">Send Feedback to Institution</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="page" id="page-kanalytics">
+    <div class="stat-row">
+      <div class="sc p"><div class="sc-ico">📈</div><div class="sc-val">+342</div><div class="sc-lbl">Quals this quarter</div><div class="sc-sub">↑ 28% vs Q2</div></div>
+      <div class="sc j"><div class="sc-ico">👩‍🎓</div><div class="sc-val">60%</div><div class="sc-lbl">Female learners</div><div class="sc-sub">National AOC</div></div>
+      <div class="sc la"><div class="sc-ico">🗺️</div><div class="sc-val">18</div><div class="sc-lbl">Counties reached</div><div class="sc-sub">of 47 total</div></div>
+      <div class="sc a"><div class="sc-ico">⭐</div><div class="sc-val">81%</div><div class="sc-lbl">National pass rate</div><div class="sc-sub">All AOC courses</div></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-h"><div class="card-title">Qualifications by Type — Q3 2026</div></div>
+        <div class="card-b">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>Micro-credentials</span><span style="font-weight:800;color:var(--purple2)">530 (61%)</span></div><div class="prog"><div class="prog-fill pf-pur" style="width:61%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>Certificates</span><span style="font-weight:800;color:var(--sky)">130 (15%)</span></div><div class="prog"><div class="prog-fill pf-sky" style="width:15%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>RPL Awards</span><span style="font-weight:800;color:var(--amber)">26 (3%)</span></div><div class="prog"><div class="prog-fill pf-amb" style="width:3%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px"><span>In progress</span><span style="font-weight:800;color:var(--jade)">1,161 (remaining)</span></div><div class="prog"><div class="prog-fill pf-jade" style="width:75%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div class="card-title">KLMIS Skills Alignment</div><span class="badge bg">Q3 2026</span></div>
+        <div class="card-b">
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px">
+            <div style="display:flex;justify-content:space-between"><span>Irrigation management</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-jade" style="width:87%"></div></div><span style="font-weight:700;color:var(--jade)">Demand 87</span></div></div>
+            <div style="display:flex;justify-content:space-between"><span>Crop pest management</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-jade" style="width:81%"></div></div><span style="font-weight:700;color:var(--jade)">Demand 81</span></div></div>
+            <div style="display:flex;justify-content:space-between"><span>Soil testing</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-sky" style="width:74%"></div></div><span style="font-weight:700;color:var(--sky)">Demand 74</span></div></div>
+            <div style="display:flex;justify-content:space-between"><span>Agribusiness</span><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill pf-amb" style="width:62%"></div></div><span style="font-weight:700;color:var(--amber)">Demand 62</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIT -->
+  <div class="page" id="page-kaudit">
+    <div class="card">
+      <div class="card-h"><div class="card-title">API Audit Log — Qualification Submissions</div><div style="display:flex;gap:8px"><button class="btn btn-outline btn-sm">Filter</button><button class="btn btn-purple btn-sm">⬇ Export 12-Month Log</button></div></div>
+      <div class="tw">
+        <table><thead><tr><th>Timestamp</th><th>Event</th><th>KNQA Ref</th><th>HEI</th><th>IP / Agent</th><th>Result</th></tr></thead><tbody>
+          <tr><td style="font-size:11.5px;font-family:monospace">2026-09-17 08:34:22</td><td><span class="badge bp">QUAL_REGISTER</span></td><td><span class="knqa-ref" style="font-size:10px">KNQA-2026-00912847</span></td><td>UoN</td><td style="font-size:11px;font-family:monospace">196.201.x.x</td><td><span class="badge bg">201 Created</span></td></tr>
+          <tr><td style="font-size:11.5px;font-family:monospace">2026-09-17 08:34:18</td><td><span class="badge bb">QUAL_VERIFY</span></td><td><span class="knqa-ref" style="font-size:10px">KNQA-2026-00912847</span></td><td>—</td><td style="font-size:11px;font-family:monospace">196.202.x.x</td><td><span class="badge bg">200 OK</span></td></tr>
+          <tr><td style="font-size:11.5px;font-family:monospace">2026-09-17 07:12:44</td><td><span class="badge ba">RPL_SUBMIT</span></td><td><span class="knqa-ref" style="font-size:10px">RPL-AOC-2026-0041</span></td><td>KNQA</td><td style="font-size:11px;font-family:monospace">AOC Platform</td><td><span class="badge bg">202 Accepted</span></td></tr>
+          <tr><td style="font-size:11.5px;font-family:monospace">2026-09-17 06:00:12</td><td><span class="badge bgr">BATCH_SYNC</span></td><td>—</td><td>All HEIs</td><td style="font-size:11px;font-family:monospace">CRON / Internal</td><td><span class="badge bg">200 OK · 187 records</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+</div></div></div>
+
+<script>
+function switchPortal(p){
+  document.querySelectorAll(".portal").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".ps-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("portal-"+p).classList.add("active");
+  document.querySelector(".ps-btn."+p).classList.add("active");
+}
+
+const instMeta={idashboard:{t:"Institution Dashboard",s:"AOC · Egerton University"},icatalogue:{t:"Course Catalogue",s:"Egerton University AOC courses"},ienrolment:{t:"Enrolment Management",s:"Student registration · IPRS · SIS"},ierp:{t:"ERP Integration",s:"Banner LTI 1.3 · Grade passback"},ilecturers:{t:"Lecturers & Staff",s:"Faculty management"},iaccreditation:{t:"Accreditation",s:"KNQA submission · OBE compliance"},iobe:{t:"OBE & Outcomes",s:"Programme outcome attainment"},ianalytics:{t:"Reports & Analytics",s:"Institutional performance dashboard"}};
+function showInstPage(id){document.querySelectorAll("#portal-inst .page").forEach(p=>p.classList.remove("active"));document.querySelectorAll("#portal-inst .ni").forEach(n=>n.classList.remove("active"));const p=document.getElementById("page-"+id);if(p)p.classList.add("active");const n=document.querySelector(`#portal-inst .ni[onclick="showInstPage('${id}')"]`);if(n)n.classList.add("active");const m=instMeta[id]||{t:id,s:""};document.getElementById("inst-title").textContent=m.t;document.getElementById("inst-sub").textContent=m.s;document.getElementById("inst-main").scrollTop=0;}
+
+const knqaMeta={kdashboard:{t:"National Dashboard",s:"KNQA · AOC Platform · National Overview"},kqualifications:{t:"Qualifications Registry",s:"National Qualifications Database"},krpl:{t:"RPL Review Queue",s:"Recognition of Prior Learning · Assessor decisions"},kverify:{t:"Credential Verification",s:"Public & employer verification portal"},kaccreditation:{t:"HEI Accreditation Review",s:"KNQA submissions · Programme approvals"},kframeworks:{t:"NQF Frameworks",s:"National Qualifications Framework management"},kanalytics:{t:"National Analytics",s:"Power BI · OData · Cross-HEI reporting"},klmis:{t:"KLMIS Labour Data",s:"Skills demand · Graduate outcomes pipeline"},kaudit:{t:"Audit Logs",s:"12-month API audit trail · Compliance"}};
+function showKnqaPage(id){document.querySelectorAll("#portal-knqa .page").forEach(p=>p.classList.remove("active"));document.querySelectorAll("#portal-knqa .ni").forEach(n=>n.classList.remove("active"));const p=document.getElementById("page-"+id);if(p)p.classList.add("active");const n=document.querySelector(`#portal-knqa .ni[onclick="showKnqaPage('${id}')"]`);if(n)n.classList.add("active");const m=knqaMeta[id]||{t:id,s:""};document.getElementById("knqa-title").textContent=m.t;document.getElementById("knqa-sub").textContent=m.s;document.getElementById("knqa-main").scrollTop=0;}
+</script>
+</body>
+</html>
