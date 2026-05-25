@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AOC Digital Campus</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --jade:#005C3B;--jade2:#007A50;--jade3:#00A868;--jade4:#34D399;
+  --earth:#1A1208;--bark:#3D1F0A;
+  --amber:#C47A00;--amber2:#E8960A;--amber3:#FAC232;
+  --sky:#0F3D8C;--sky2:#1A5FBF;--sky3:#4A8FE8;
+  --sand:#F5EDD8;--sand2:#EDE0C4;--cream:#FDFAF4;
+  --offline:#D94F0A;--offline2:#F26522;
+  --text:#0D1A0A;--text2:#2D4228;--text3:#687A5A;--text4:#9AAA88;
+  --border:#DDD5C0;--wh:#FFFFFF;
+  --r:14px;--rm:20px;--rl:28px;
+  --fh:'Sora',sans-serif;--fb:'Inter',sans-serif;
+  --tr:all .22s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:#0E140C;color:var(--text);overflow-x:hidden}
+
+/* ── LANDING NAV ── */
+.lnav{position:fixed;top:0;left:0;right:0;z-index:900;height:64px;
+  background:rgba(253,250,244,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(0,92,59,.1);
+  display:flex;align-items:center;justify-content:space-between;padding:0 6%}
+.lnav-logo{display:flex;align-items:center;gap:9px}
+.lnav-mark{width:34px;height:34px;border-radius:9px;background:var(--jade);
+  display:flex;align-items:center;justify-content:center}
+.lnav-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}
+.lnav-brand{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--earth)}
+.lnav-brand span{color:var(--jade)}
+.lnav-links{display:flex;gap:28px}
+.lnav-links a{font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:var(--tr)}
+.lnav-links a:hover{color:var(--jade)}
+.lnav-cta{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 20px;border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;font-family:var(--fb);text-decoration:none;transition:var(--tr)}
+.btn-jade{background:var(--jade);color:#fff}
+.btn-jade:hover{background:var(--jade2);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--jade);color:var(--jade)}
+.btn-lg{padding:14px 32px;font-size:15px;border-radius:12px}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px}
+.btn-white{background:#fff;color:var(--jade);font-weight:700}
+.btn-ghost-w{background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.25)}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-offline{background:var(--offline);color:#fff}
+
+/* ── HERO ── */
+.hero{min-height:100vh;background:linear-gradient(160deg,#051A0F 0%,#0A2A18 40%,#083020 70%,#0D1A0A 100%);
+  display:flex;align-items:center;padding:100px 6% 60px;position:relative;overflow:hidden}
+.hero-bg-circle{position:absolute;border-radius:50%;background:rgba(0,168,104,.07)}
+.hero-content{flex:1;max-width:560px;position:relative;z-index:2}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(0,200,120,.15);border:1px solid rgba(0,200,120,.3);
+  color:var(--jade4);padding:5px 14px;border-radius:99px;
+  font-size:11.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:24px}
+.hero-eyebrow-dot{width:6px;height:6px;background:var(--jade3);border-radius:50%}
+.hero-h1{font-family:var(--fh);font-size:clamp(38px,5vw,64px);
+  font-weight:900;color:#fff;line-height:1.08;letter-spacing:-1.5px;margin-bottom:20px}
+.hero-h1 em{color:var(--jade4);font-style:normal}
+.hero-sub{font-size:17px;color:rgba(255,255,255,.6);line-height:1.7;max-width:480px;margin-bottom:36px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:52px}
+.hero-stats{display:flex;gap:36px;flex-wrap:wrap}
+.h-stat .hv{font-family:var(--fh);font-size:28px;font-weight:800;color:#fff;line-height:1}
+.h-stat .hl{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;text-transform:uppercase;letter-spacing:.6px}
+.hero-visual{flex:1;display:flex;justify-content:center;align-items:center;position:relative;z-index:2}
+
+/* ── PHONE FRAME ── */
+.phone{width:300px;background:#fff;border-radius:40px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.1),0 0 0 9px #0A0A0A,
+    0 0 0 11px rgba(255,255,255,.04),0 30px 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;height:620px;position:relative}
+.phone.offline-mode .phone-sb{background:var(--offline) !important}
+.phone-sb{height:40px;background:var(--jade);display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;flex-shrink:0;position:relative;z-index:10;transition:var(--tr)}
+.phone-time{font-size:13px;font-weight:700;color:#fff;font-family:var(--fh)}
+.phone-sb-icons{display:flex;align-items:center;gap:4px;font-size:11px;color:rgba(255,255,255,.9)}
+.offline-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  background:var(--offline2);color:#fff;font-size:9px;font-weight:800;letter-spacing:.5px;
+  padding:1px 12px 2px;border-radius:0 0 8px 8px;display:none;z-index:20;white-space:nowrap}
+.phone.offline-mode .offline-notch{display:block}
+.phone-screen{flex:1;overflow-y:auto;overflow-x:hidden;background:#FDFAF4;position:relative}
+.phone-screen::-webkit-scrollbar{display:none}
+.phone-bnav{height:56px;background:#fff;border-top:1px solid #E8E0CC;
+  display:flex;align-items:center;flex-shrink:0}
+.pnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding:7px 4px;cursor:pointer;border:none;background:none}
+.pnav-ico{font-size:18px;line-height:1}
+.pnav-lbl{font-size:9px;font-weight:600;color:#9AAA88}
+.pnav-btn.active .pnav-lbl{color:var(--jade)}
+
+/* ── OFFLINE BANNER (inside phone) ── */
+.off-banner{background:var(--offline);color:#fff;padding:7px 14px;
+  display:none;align-items:center;gap:8px;font-size:11px;font-weight:600;flex-shrink:0}
+.phone.offline-mode .off-banner{display:flex}
+.off-tag{background:rgba(255,255,255,.25);border-radius:99px;padding:2px 8px;font-size:9.5px;font-weight:800}
+.sync-bar{background:var(--jade);color:#fff;padding:7px 14px;
+  display:none;align-items:center;gap:8px;font-size:11px;font-weight:600}
+.sync-bar.show{display:flex}
+.spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Phone screen pages */
+.p-page{display:none}
+.p-page.active{display:block}
+
+/* Phone hero zone */
+.p-hero{padding:16px;background:linear-gradient(160deg,var(--jade) 0%,var(--jade2) 60%,#003A28 100%);color:#fff;position:relative;overflow:hidden}
+.p-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;
+  border-radius:50%;background:rgba(255,255,255,.05)}
+.p-hero-name{font-family:var(--fh);font-size:17px;font-weight:800;margin-bottom:2px}
+.p-hero-sub{font-size:10.5px;color:rgba(255,255,255,.6);margin-bottom:12px}
+.p-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.p-stat{text-align:center}
+.p-stat .pv{font-family:var(--fh);font-size:18px;font-weight:800;color:#fff}
+.p-stat .pl{font-size:8.5px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.4px}
+
+/* Phone cards */
+.p-card{background:#fff;border-radius:14px;border:1px solid #E8E0CC;overflow:hidden;margin:0 12px 10px}
+.p-card-h{padding:11px 13px;border-bottom:1px solid #EEE8DA;display:flex;align-items:center;justify-content:space-between}
+.p-card-title{font-family:var(--fh);font-size:12.5px;font-weight:700;color:var(--text)}
+.p-card-b{padding:11px 13px}
+.p-sec{font-size:9.5px;font-weight:700;color:#9AAA88;letter-spacing:1.1px;text-transform:uppercase;padding:10px 12px 5px}
+
+/* Course list item */
+.p-course{display:flex;gap:10px;align-items:center;padding:10px 13px;border-bottom:1px solid #F2ECE0}
+.p-course:last-child{border-bottom:none}
+.p-cthumb{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.p-cinfo{flex:1;min-width:0}
+.p-ctitle{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-cmeta{font-size:10px;color:#9AAA88;margin-bottom:5px}
+.p-prog{height:4px;background:#EDE0C4;border-radius:99px;overflow:hidden}
+.p-prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--jade),var(--jade4));transition:width .5s}
+.p-cpct{font-size:10px;font-weight:800;color:var(--jade)}
+
+/* Offline pill on thumb */
+.off-pill{position:absolute;top:3px;right:3px;background:rgba(217,79,10,.9);
+  border-radius:99px;padding:1px 6px;font-size:8px;font-weight:800;color:#fff}
+.on-pill{position:absolute;top:3px;right:3px;background:rgba(0,168,104,.9);
+  border-radius:99px;padding:1px 6px;font-size:8px;font-weight:800;color:#fff}
+.thumb-wrap{position:relative;flex-shrink:0}
+
+/* Queued item */
+.q-item{display:flex;align-items:center;gap:10px;padding:10px 13px;
+  background:rgba(217,79,10,.05);border-bottom:1px solid rgba(217,79,10,.1)}
+.q-item:last-child{border-bottom:none}
+.q-dot{width:8px;height:8px;border-radius:50%;background:var(--offline2);flex-shrink:0}
+.q-label{font-size:11.5px;font-weight:600;color:var(--offline);flex:1}
+.q-sub{font-size:10px;color:#9AAA88}
+.q-tag{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0}
+.q-tag.queued{background:rgba(217,79,10,.12);color:var(--offline)}
+.q-tag.synced{background:rgba(0,135,75,.12);color:var(--jade)}
+
+/* AI panel */
+.p-ai{background:linear-gradient(135deg,#1A1208,#1E3A1C,#003A22);
+  border-radius:12px;padding:12px;margin:0 12px 10px;position:relative;overflow:hidden}
+.p-ai::before{content:'';position:absolute;top:-10px;right:-10px;width:60px;height:60px;border-radius:50%;background:rgba(0,168,104,.12)}
+.p-ai-badge{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(0,200,120,.2);border:1px solid rgba(0,200,120,.3);
+  border-radius:99px;padding:2px 9px;font-size:9.5px;font-weight:700;color:var(--jade4);margin-bottom:8px}
+.p-ai-title{font-family:var(--fh);font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.p-ai-body{font-size:10.5px;color:rgba(255,255,255,.55);line-height:1.45}
+.pulse{animation:pulse-anim 1.4s infinite}
+@keyframes pulse-anim{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* List rows */
+.p-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid #F2ECE0}
+.p-row:last-child{border-bottom:none}
+.p-row-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.p-row-main{flex:1;min-width:0}
+.p-row-t{font-size:11.5px;font-weight:600;color:var(--text)}
+.p-row-s{font-size:10px;color:#9AAA88;margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700}
+.bg-g{background:rgba(0,135,75,.1);color:var(--jade)}.bg-a{background:rgba(196,122,0,.12);color:var(--amber)}.bg-r{background:rgba(192,57,43,.1);color:#C0392B}.bg-s{background:rgba(26,95,173,.1);color:#1A5FA0}.bg-off{background:rgba(217,79,10,.1);color:var(--offline)}
+
+/* Phone module grid */
+.p-mod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 12px 10px}
+.p-mod{background:#fff;border:1px solid #E8E0CC;border-radius:11px;
+  padding:10px 6px;text-align:center;cursor:pointer}
+.p-mod-ico{font-size:20px;margin-bottom:5px}
+.p-mod-t{font-size:10px;font-weight:700;color:var(--text);line-height:1.2}
+.p-mod-s{font-size:9px;color:#9AAA88;margin-top:2px}
+
+/* ── LANDING SECTIONS ── */
+section{padding:80px 6%}
+.lsec-label{font-size:11px;font-weight:700;color:var(--jade);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.lsec-h2{font-family:var(--fh);font-size:clamp(30px,3.5vw,48px);font-weight:800;color:var(--earth);line-height:1.15;letter-spacing:-.8px;margin-bottom:14px}
+.lsec-sub{font-size:16px;color:var(--text3);line-height:1.7;max-width:560px}
+.dark-sec{background:var(--earth)}
+.dark-sec .lsec-h2{color:#fff}
+.dark-sec .lsec-sub{color:rgba(255,255,255,.55)}
+.dark-sec .lsec-label{color:var(--jade4)}
+
+/* Feature grid */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:40px;border-radius:var(--rm);overflow:hidden;border:1px solid #E8E0CC}
+.feat-cell{padding:28px;background:#fff;transition:var(--tr)}
+.feat-cell:hover{background:var(--sand)}
+.feat-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.feat-h{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--earth);margin-bottom:8px}
+.feat-p{font-size:13px;color:var(--text3);line-height:1.65}
+
+/* Offline feature section */
+.offline-section{background:linear-gradient(160deg,#1A0A00,#2A1200,#0D1A0A)}
+.offline-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.off-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--rm);padding:24px}
+.off-card-ico{font-size:28px;margin-bottom:14px}
+.off-card-h{font-family:var(--fh);font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.off-card-p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* Partner strip */
+.partner-strip{background:var(--sand);border-top:1px solid var(--sand2);border-bottom:1px solid var(--sand2);padding:22px 6%}
+.partner-inner{display:flex;align-items:center;gap:0;overflow:hidden}
+.partner-lbl{font-size:10.5px;font-weight:700;color:var(--text4);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-right:28px;flex-shrink:0}
+.partner-scroll{display:flex;gap:36px;align-items:center;mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent)}
+.p-hei{font-family:var(--fh);font-size:13.5px;font-weight:700;color:var(--text2);opacity:.55;white-space:nowrap;transition:var(--tr)}
+.p-hei:hover{opacity:1}
+
+/* Role cards */
+.roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.role-card{border-radius:var(--rm);padding:32px;cursor:pointer;transition:var(--tr);text-decoration:none;display:block;border:1px solid transparent}
+.role-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.15)}
+.role-card.lnr{background:linear-gradient(135deg,#0A3A1E,#0F5A32);border-color:#1A7A4A}
+.role-card.tnr{background:linear-gradient(135deg,#2A1500,#4A2800);border-color:#6B3A10}
+.role-card.adm{background:linear-gradient(135deg,#0A1A3A,#1A3A6A);border-color:#2A5A9A}
+.role-card.knq{background:linear-gradient(135deg,#1A0A3A,#3A1A6A);border-color:#5A2AB0}
+.role-card.emp{background:linear-gradient(135deg,#2A1500,#5A2A00);border-color:#8A4A00}
+.rc-ico{font-size:32px;margin-bottom:16px}
+.rc-h{font-family:var(--fh);font-size:19px;font-weight:700;color:#fff;margin-bottom:8px}
+.rc-p{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:18px}
+.rc-link{font-size:12.5px;font-weight:700;color:var(--jade4);display:flex;align-items:center;gap:5px}
+.role-card.tnr .rc-link{color:var(--amber3)}.role-card.adm .rc-link{color:#7AB8E8}.role-card.knq .rc-link{color:#B8A0F0}.role-card.emp .rc-link{color:var(--amber3)}
+
+/* Integration grid */
+.int-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+.int-card{background:#fff;border:1px solid #E8E0CC;border-radius:var(--r);padding:18px;display:flex;gap:12px;transition:var(--tr)}
+.int-card:hover{border-color:var(--jade)}
+.int-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.int-h{font-size:12.5px;font-weight:700;color:var(--earth);margin-bottom:3px}
+.int-p{font-size:11px;color:var(--text3);line-height:1.45}
+
+/* CTA banner */
+.cta-banner{background:linear-gradient(135deg,var(--jade) 0%,#003A28 60%,#0A2A18 100%);padding:80px 6%;text-align:center;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(0,200,120,.12),transparent 55%)}
+.cta-h{font-family:var(--fh);font-size:clamp(28px,4vw,50px);font-weight:900;color:#fff;margin-bottom:14px;letter-spacing:-.8px;position:relative}
+.cta-p{font-size:16px;color:rgba(255,255,255,.6);max-width:500px;margin:0 auto 32px;line-height:1.65;position:relative}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+/* Footer */
+footer{background:#0A0A0A;padding:56px 6% 28px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:44px}
+.footer-brand{font-family:var(--fh);font-size:18px;font-weight:700;color:#fff;margin-bottom:10px}
+.footer-brand span{color:var(--jade4)}
+.footer-brand p{font-size:12.5px;color:rgba(255,255,255,.35);line-height:1.7;max-width:260px;margin-top:8px;font-family:var(--fb);font-weight:400}
+.footer-col h4{font-size:10px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.footer-col a{display:block;font-size:12.5px;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:9px;transition:var(--tr)}
+.footer-col a:hover{color:var(--jade4)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap}
+.footer-bottom p{font-size:11.5px;color:rgba(255,255,255,.22)}
+.footer-badges{display:flex;gap:8px}
+.fbadge{padding:3px 9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:5px;font-size:10px;font-weight:700;color:rgba(255,255,255,.28)}
+
+/* Offline demo section */
+.demo-section{background:linear-gradient(160deg,#0D1A0A,#0A1A10);padding:80px 6%}
+.demo-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:40px}
+.demo-phones{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.demo-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px}
+.demo-label .dl-dot{width:8px;height:8px;border-radius:50%}
+.dl-dot.green{background:var(--jade3)}.dl-dot.red{background:var(--offline2)}
+.demo-text-block{display:flex;flex-direction:column;gap:20px}
+.dtb-item{display:flex;gap:14px;align-items:flex-start}
+.dtb-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.dtb-h{font-family:var(--fh);font-size:15px;font-weight:700;color:#fff;margin-bottom:5px}
+.dtb-p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.55}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════════════════════════ -->
+<nav class="lnav">
+  <div class="lnav-logo">
+    <div class="lnav-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span class="lnav-brand">AOC <span>Digital Campus</span></span>
+  </div>
+  <div class="lnav-links">
+    <a href="#platform">Platform</a>
+    <a href="#offline">Offline Access</a>
+    <a href="#portals">Portals</a>
+    <a href="#integrations">Integrations</a>
+  </div>
+  <div class="lnav-cta">
+    <a href="#demo" class="btn btn-outline btn-sm">See Demo</a>
+    <a href="#portals" class="btn btn-jade btn-sm">Get Started</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ═════════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg-circle" style="width:500px;height:500px;top:-100px;right:-100px"></div>
+  <div class="hero-bg-circle" style="width:300px;height:300px;bottom:-50px;left:30%"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow"><span class="hero-eyebrow-dot"></span>Kenya's Open Agricultural eLearning Platform</div>
+    <h1 class="hero-h1">Learn. Earn.<br><em>Grow.</em> Even<br>offline.</h1>
+    <p class="hero-sub">AOC Digital Campus unifies learning, qualifications, and careers for Kenyan farmers, students, and professionals — KNQA-accredited, CBE-aligned, accessible anywhere, even without internet.</p>
+    <div class="hero-ctas">
+      <a href="#portals" class="btn btn-jade btn-lg">Start Learning Free →</a>
+      <a href="#offline" class="btn btn-ghost-w btn-lg">How offline works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="h-stat"><div class="hv">17+</div><div class="hl">Accredited Courses</div></div>
+      <div class="h-stat"><div class="hv">6</div><div class="hl">Partner HEIs</div></div>
+      <div class="h-stat"><div class="hv">KNQA</div><div class="hl">Nationally Registered</div></div>
+      <div class="h-stat"><div class="hv">PWA</div><div class="hl">Works Offline</div></div>
+    </div>
+  </div>
+
+  <!-- ── HERO PHONE ── -->
+  <div class="hero-visual">
+    <div class="phone" id="hero-phone">
+      <div class="phone-sb" id="hero-sb">
+        <span class="phone-time">9:41</span>
+        <div class="phone-sb-icons">
+          <span id="hero-wifi">📶</span>
+          <span>🔋</span>
+        </div>
+        <div class="offline-notch">OFFLINE</div>
+      </div>
+
+      <div class="phone-screen">
+        <!-- Offline banner -->
+        <div class="off-banner" id="hero-off-banner">
+          <span style="font-size:13px">📵</span>
+          <span>Working offline — 3 items queued</span>
+          <span class="off-tag">Sync pending</span>
+        </div>
+        <!-- Sync bar -->
+        <div class="sync-bar" id="hero-sync">
+          <span class="spin" style="font-size:13px">⟳</span>
+          <span>Syncing 3 items to KNQA &amp; server…</span>
+        </div>
+
+        <!-- Home screen content -->
+        <div style="padding:14px 12px 0">
+          <div style="font-size:10px;font-weight:700;color:#9AAA88;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Good morning</div>
+          <div style="font-family:var(--fh);font-size:17px;font-weight:800;color:#0D1A0A;margin-bottom:10px">Wanjiru Kamau 👋</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+            <div style="background:#fff;border:1px solid #E8E0CC;border-radius:10px;padding:9px;text-align:center">
+              <div style="font-family:var(--fh);font-size:18px;font-weight:800;color:#005C3B">3</div>
+              <div style="font-size:8.5px;color:#9AAA88;text-transform:uppercase;letter-spacing:.4px">Courses</div>
+            </div>
+            <div style="background:#fff;border:1px solid #E8E0CC;border-radius:10px;padding:9px;text-align:center">
+              <div style="font-family:var(--fh);font-size:18px;font-weight:800;color:#005C3B">8</div>
+              <div style="font-size:8.5px;color:#9AAA88;text-transform:uppercase;letter-spacing:.4px">ECTS</div>
+            </div>
+            <div style="background:#fff;border:1px solid #E8E0CC;border-radius:10px;padding:9px;text-align:center">
+              <div style="font-family:var(--fh);font-size:18px;font-weight:800;color:#005C3B">2</div>
+              <div style="font-size:8.5px;color:#9AAA88;text-transform:uppercase;letter-spacing:.4px">Creds</div>
+            </div>
+            <div style="background:rgba(217,79,10,.08);border:1px solid rgba(217,79,10,.2);border-radius:10px;padding:9px;text-align:center" id="queue-stat">
+              <div style="font-family:var(--fh);font-size:18px;font-weight:800;color:#D94F0A" id="q-count">3</div>
+              <div style="font-size:8.5px;color:#D94F0A;text-transform:uppercase;letter-spacing:.4px">Queued</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI panel -->
+        <div class="p-ai">
+          <div class="p-ai-badge"><span class="pulse" style="width:5px;height:5px;background:var(--jade4);border-radius:50%;display:inline-block"></span>AOC Intelligence</div>
+          <div class="p-ai-title">Exam in 6 days · Readiness 87%</div>
+          <div class="p-ai-body">Complete Module 7 to reach 93% exam readiness</div>
+        </div>
+
+        <!-- Queued items -->
+        <div id="queue-section">
+          <div class="p-sec">Offline Queue — pending sync</div>
+          <div class="p-card">
+            <div class="p-card-h"><div class="p-card-title" style="color:var(--offline)">📤 3 items waiting to sync</div><button class="btn btn-offline btn-sm" onclick="triggerSync()" style="font-size:10px;padding:5px 10px">Sync now</button></div>
+            <div id="q-list">
+              <div class="q-item"><div class="q-dot"></div><div style="flex:1"><div class="q-label">Quiz attempt — Module 6</div><div class="q-sub">Soil Science · Score saved locally</div></div><span class="q-tag queued">Queued</span></div>
+              <div class="q-item"><div class="q-dot"></div><div style="flex:1"><div class="q-label">Forum reply — Water management</div><div class="q-sub">Agribusiness forum · saved offline</div></div><span class="q-tag queued">Queued</span></div>
+              <div class="q-item" style="border-bottom:none"><div class="q-dot"></div><div style="flex:1"><div class="q-label">RPL evidence upload</div><div class="q-sub">Employment letter · 1.2 MB PDF</div></div><span class="q-tag queued">Queued</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-sec">My Courses</div>
+        <div class="p-card">
+          <div class="p-course">
+            <div class="thumb-wrap">
+              <div class="p-cthumb" style="background:linear-gradient(135deg,#0D4F2A,#00A868)">🌱</div>
+              <div id="pill-1" class="off-pill">↓ Off</div>
+            </div>
+            <div class="p-cinfo">
+              <div class="p-ctitle">Soil Science &amp; Fertility</div>
+              <div class="p-cmeta">UoN · 5 ECTS · NQF 5</div>
+              <div class="p-prog"><div class="p-prog-fill" style="width:72%"></div></div>
+            </div>
+            <div class="p-cpct">72%</div>
+          </div>
+          <div class="p-course">
+            <div class="thumb-wrap">
+              <div class="p-cthumb" style="background:linear-gradient(135deg,#0A2A52,#2454A4)">💼</div>
+              <div id="pill-2" class="on-pill">Live</div>
+            </div>
+            <div class="p-cinfo">
+              <div class="p-ctitle">Agribusiness &amp; Value Chain</div>
+              <div class="p-cmeta">Laikipia · 5 ECTS · NQF 5</div>
+              <div class="p-prog"><div class="p-prog-fill" style="width:45%;background:linear-gradient(90deg,#C47A00,#FAC232)"></div></div>
+            </div>
+            <div class="p-cpct" style="color:#C47A00">45%</div>
+          </div>
+          <div class="p-course" style="border-bottom:none">
+            <div class="thumb-wrap">
+              <div class="p-cthumb" style="background:linear-gradient(135deg,#4A2000,#B87333)">🚜</div>
+              <div id="pill-3" class="off-pill">↓ Off</div>
+            </div>
+            <div class="p-cinfo">
+              <div class="p-ctitle">Crop Production &amp; Mgmt</div>
+              <div class="p-cmeta">SEKU · 3 ECTS · NQF 4</div>
+              <div class="p-prog"><div class="p-prog-fill" style="width:28%;background:linear-gradient(90deg,#1A5FBF,#4A8FE8)"></div></div>
+            </div>
+            <div class="p-cpct" style="color:#1A5FBF">28%</div>
+          </div>
+        </div>
+
+        <div class="p-sec">Quick Access</div>
+        <div class="p-mod-grid">
+          <div class="p-mod"><div class="p-mod-ico">📝</div><div class="p-mod-t">Exams</div><div class="p-mod-s">2 upcoming</div></div>
+          <div class="p-mod"><div class="p-mod-ico">✅</div><div class="p-mod-t">RPL</div><div class="p-mod-s">In review</div></div>
+          <div class="p-mod"><div class="p-mod-ico">🏅</div><div class="p-mod-t">Credentials</div><div class="p-mod-s">KNQA certs</div></div>
+          <div class="p-mod"><div class="p-mod-ico">💳</div><div class="p-mod-t">M-Pesa</div><div class="p-mod-s">Fees</div></div>
+          <div class="p-mod"><div class="p-mod-ico">💼</div><div class="p-mod-t">Careers</div><div class="p-mod-s">4 matches</div></div>
+          <div class="p-mod"><div class="p-mod-ico">📅</div><div class="p-mod-t">Attendance</div><div class="p-mod-s">94%</div></div>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+
+      <div class="phone-bnav">
+        <button class="pnav-btn active"><div class="pnav-ico">🏠</div><div class="pnav-lbl">Home</div></button>
+        <button class="pnav-btn"><div class="pnav-ico">📚</div><div class="pnav-lbl">Courses</div></button>
+        <button class="pnav-btn"><div class="pnav-ico">🔔</div><div class="pnav-lbl">Alerts</div></button>
+        <button class="pnav-btn"><div class="pnav-ico">👤</div><div class="pnav-lbl">Profile</div></button>
+      </div>
+    </div>
+
+    <!-- Toggle button -->
+    <div style="margin-top:20px;text-align:center">
+      <button id="toggle-btn" onclick="toggleOffline()"
+        style="padding:10px 24px;border-radius:10px;border:none;cursor:pointer;font-family:var(--fh);font-size:13px;font-weight:700;background:rgba(217,79,10,.15);color:var(--offline2);border:1.5px solid rgba(217,79,10,.3);transition:all .2s">
+        📵 Simulate Going Offline
+      </button>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:8px">Toggle to see offline mode in action</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PARTNER STRIP ════════════════════════════════════════════════════════ -->
+<div class="partner-strip">
+  <div class="partner-inner">
+    <div class="partner-lbl">Partner institutions</div>
+    <div class="partner-scroll">
+      <div class="p-hei">University of Nairobi</div><div class="p-hei">·</div>
+      <div class="p-hei">SEKU</div><div class="p-hei">·</div>
+      <div class="p-hei">Laikipia University</div><div class="p-hei">·</div>
+      <div class="p-hei">Egerton University</div><div class="p-hei">·</div>
+      <div class="p-hei">HAMK University</div><div class="p-hei">·</div>
+      <div class="p-hei">NHL Stenden</div><div class="p-hei">·</div>
+      <div class="p-hei">KNQA</div><div class="p-hei">·</div>
+      <div class="p-hei">Ministry of Education Kenya</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OFFLINE DEMO SECTION ════════════════════════════════════════════════ -->
+<section class="offline-section" id="offline">
+  <div class="lsec-label" style="color:var(--offline2)">Offline First Design</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center">
+    <div>
+      <h2 class="lsec-h2" style="color:#fff">Full access — even without internet.</h2>
+      <p class="lsec-sub">AOC Digital Campus is built as a Progressive Web App (PWA). Download course modules at home, complete them on a matatu, sync results when you next get signal.</p>
+    </div>
+    <div>
+      <div class="offline-cards" style="grid-template-columns:1fr;gap:12px">
+        <div class="off-card" style="display:flex;gap:14px;align-items:flex-start;padding:18px">
+          <div style="font-size:26px;flex-shrink:0">⬇️</div>
+          <div>
+            <div class="off-card-h" style="font-size:14px">Download once, learn anywhere</div>
+            <div class="off-card-p">Star any course to save videos, PDFs, and quizzes to your device. No connection needed to study.</div>
+          </div>
+        </div>
+        <div class="off-card" style="display:flex;gap:14px;align-items:flex-start;padding:18px">
+          <div style="font-size:26px;flex-shrink:0">📤</div>
+          <div>
+            <div class="off-card-h" style="font-size:14px">Automatic sync queue</div>
+            <div class="off-card-p">Quiz answers, forum posts, RPL evidence, and attendance are queued locally and synced automatically when you reconnect.</div>
+          </div>
+        </div>
+        <div class="off-card" style="display:flex;gap:14px;align-items:flex-start;padding:18px">
+          <div style="font-size:26px;flex-shrink:0">🔗</div>
+          <div>
+            <div class="off-card-h" style="font-size:14px">KNQA records preserved</div>
+            <div class="off-card-p">Completed assessments sync to KNQA on reconnect. Your qualification is never lost — even if you're offline when you finish.</div>
+          </div>
+        </div>
+        <div class="off-card" style="display:flex;gap:14px;align-items:flex-start;padding:18px">
+          <div style="font-size:26px;flex-shrink:0">💬</div>
+          <div>
+            <div class="off-card-h" style="font-size:14px">SMS fallback notifications</div>
+            <div class="off-card-p">When you're offline, deadlines and results reach you via SMS through Africa is Talking — no app required.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TWO PHONES SIDE BY SIDE DEMO ══════════════════════════════════════ -->
+<section class="demo-section" id="demo">
+  <div style="text-align:center;margin-bottom:40px">
+    <div class="lsec-label" style="color:var(--jade4)">Live Demonstration</div>
+    <h2 class="lsec-h2" style="color:#fff;max-width:600px;margin:0 auto 12px">See online vs offline — side by side</h2>
+    <p style="font-size:15px;color:rgba(255,255,255,.45);max-width:500px;margin:0 auto">Both phones show the same learner. Same data. One connected, one not. Every feature still works.</p>
+  </div>
+
+  <div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap">
+
+    <!-- ONLINE PHONE -->
+    <div>
+      <div class="demo-label"><span class="dl-dot green"></span>ONLINE — Connected to KNQA, IPRS &amp; server</div>
+      <div class="phone">
+        <div class="phone-sb">
+          <span class="phone-time">9:41</span>
+          <div class="phone-sb-icons"><span>📶</span><span>🔋</span></div>
+        </div>
+        <div class="phone-screen">
+          <div class="p-hero">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px">Dashboard · Online</div>
+            <div class="p-hero-name">Wanjiru Kamau</div>
+            <div class="p-hero-sub">AOC-LRN-2026-00341 · All systems live</div>
+            <div class="p-stats-row">
+              <div class="p-stat"><div class="pv">3</div><div class="pl">Courses</div></div>
+              <div class="p-stat"><div class="pv">8</div><div class="pl">ECTS</div></div>
+              <div class="p-stat"><div class="pv">2</div><div class="pl">Creds</div></div>
+              <div class="p-stat"><div class="pv">94%</div><div class="pl">Attend</div></div>
+            </div>
+          </div>
+
+          <div class="p-ai" style="margin:10px 12px">
+            <div class="p-ai-badge"><span class="pulse" style="width:5px;height:5px;background:var(--jade4);border-radius:50%;display:inline-block"></span>AOC Intelligence · Live</div>
+            <div class="p-ai-title">Exam readiness: 87%</div>
+            <div class="p-ai-body">KNQA sync: ✓ · ERP sync: ✓ · IPRS: ✓</div>
+          </div>
+
+          <!-- Online course status -->
+          <div class="p-sec">All Features Available</div>
+          <div class="p-card">
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(0,135,75,.1)">🌐</div>
+              <div class="p-row-main"><div class="p-row-t">KNQA Live Qualification Push</div><div class="p-row-s">Completions register instantly</div></div>
+              <span class="badge bg-g">Live</span>
+            </div>
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(0,135,75,.1)">🎥</div>
+              <div class="p-row-main"><div class="p-row-t">Zoom Virtual Classroom</div><div class="p-row-s">Live session with Dr. Kariuki</div></div>
+              <button style="font-size:9.5px;font-weight:800;background:var(--jade);color:#fff;border:none;border-radius:6px;padding:4px 9px;cursor:pointer">Join</button>
+            </div>
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(0,135,75,.1)">💳</div>
+              <div class="p-row-main"><div class="p-row-t">M-Pesa STK Push</div><div class="p-row-s">Certificate fee payment</div></div>
+              <span class="badge bg-g">Ready</span>
+            </div>
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(0,135,75,.1)">🔐</div>
+              <div class="p-row-main"><div class="p-row-t">eCitizen SSO Active</div><div class="p-row-s">IPRS identity verified</div></div>
+              <span class="badge bg-g">✓</span>
+            </div>
+            <div class="p-row" style="border-bottom:none">
+              <div class="p-row-ico" style="background:rgba(0,135,75,.1)">📊</div>
+              <div class="p-row-main"><div class="p-row-t">AI Content Studio</div><div class="p-row-s">LLM-powered course tools</div></div>
+              <span class="badge bg-g">Active</span>
+            </div>
+          </div>
+
+          <div class="p-sec">Courses</div>
+          <div class="p-card">
+            <div class="p-course">
+              <div class="thumb-wrap">
+                <div class="p-cthumb" style="background:linear-gradient(135deg,#0D4F2A,#00A868)">🌱</div>
+                <div class="on-pill">Live</div>
+              </div>
+              <div class="p-cinfo">
+                <div class="p-ctitle">Soil Science &amp; Fertility</div>
+                <div class="p-cmeta">Stream live · Submit now</div>
+                <div class="p-prog"><div class="p-prog-fill" style="width:72%"></div></div>
+              </div>
+              <div class="p-cpct">72%</div>
+            </div>
+            <div class="p-course" style="border-bottom:none">
+              <div class="thumb-wrap">
+                <div class="p-cthumb" style="background:linear-gradient(135deg,#4A2000,#B87333)">🚜</div>
+                <div class="on-pill">Live</div>
+              </div>
+              <div class="p-cinfo">
+                <div class="p-ctitle">Crop Production &amp; Mgmt</div>
+                <div class="p-cmeta">Stream live · Full access</div>
+                <div class="p-prog"><div class="p-prog-fill" style="width:28%;background:linear-gradient(90deg,#1A5FBF,#4A8FE8)"></div></div>
+              </div>
+              <div class="p-cpct" style="color:#1A5FBF">28%</div>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+        <div class="phone-bnav">
+          <button class="pnav-btn active"><div class="pnav-ico">🏠</div><div class="pnav-lbl">Home</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">📚</div><div class="pnav-lbl">Courses</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">🔔</div><div class="pnav-lbl">Alerts</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">👤</div><div class="pnav-lbl">Profile</div></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFLINE PHONE -->
+    <div>
+      <div class="demo-label"><span class="dl-dot red"></span>OFFLINE — No connectivity, full functionality</div>
+      <div class="phone offline-mode">
+        <div class="phone-sb" style="background:var(--offline)">
+          <span class="phone-time">9:41</span>
+          <div class="phone-sb-icons"><span>📵</span><span>🔋</span></div>
+          <div class="offline-notch" style="display:block">OFFLINE MODE</div>
+        </div>
+        <div class="phone-screen">
+          <div class="off-banner" style="display:flex">
+            <span style="font-size:13px">📵</span>
+            <span>Offline · 3 items queued for sync</span>
+            <span class="off-tag">Auto-sync on reconnect</span>
+          </div>
+
+          <div style="background:rgba(217,79,10,.05);border-bottom:1px solid rgba(217,79,10,.12);padding:10px 12px">
+            <div style="font-size:10.5px;font-weight:700;color:var(--offline);margin-bottom:8px">📤 Offline Queue — saved locally</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(217,79,10,.07);border-radius:8px;padding:7px 10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--offline2);flex-shrink:0;display:inline-block"></span>
+                <div style="flex:1">
+                  <div style="font-size:11px;font-weight:700;color:var(--offline)">Quiz attempt — Module 6</div>
+                  <div style="font-size:9.5px;color:#9AAA88">Score 88% · stored locally</div>
+                </div>
+                <span style="font-size:9px;font-weight:700;background:rgba(217,79,10,.15);color:var(--offline);padding:2px 7px;border-radius:99px">Queued</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;background:rgba(217,79,10,.07);border-radius:8px;padding:7px 10px">
+                <span style="width:6px;height:6px;border-radius:50%;background:var(--offline2);flex-shrink:0;display:inline-block"></span>
+                <div style="flex:1">
+                  <div style="font-size:11px;font-weight:700;color:var(--offline)">RPL evidence upload</div>
+                  <div style="font-size:9.5px;color:#9AAA88">Employment letter · 1.2 MB</div>
+                </div>
+                <span style="font-size:9px;font-weight:700;background:rgba(217,79,10,.15);color:var(--offline);padding:2px 7px;border-radius:99px">Queued</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-sec">Available Offline — Downloaded</div>
+          <div class="p-card">
+            <div class="p-course">
+              <div class="thumb-wrap">
+                <div class="p-cthumb" style="background:linear-gradient(135deg,#0D4F2A,#00A868)">🌱</div>
+                <div class="off-pill">↓ Off</div>
+              </div>
+              <div class="p-cinfo">
+                <div class="p-ctitle">Soil Science &amp; Fertility</div>
+                <div class="p-cmeta" style="color:var(--jade)">Modules 1–6 · Videos · PDFs</div>
+                <div class="p-prog"><div class="p-prog-fill" style="width:72%"></div></div>
+              </div>
+              <button style="font-size:9.5px;font-weight:800;background:var(--jade);color:#fff;border:none;border-radius:7px;padding:5px 9px;cursor:pointer">Open ↓</button>
+            </div>
+            <div class="p-course" style="border-bottom:none">
+              <div class="thumb-wrap">
+                <div class="p-cthumb" style="background:linear-gradient(135deg,#4A2000,#B87333)">🚜</div>
+                <div class="off-pill">↓ Off</div>
+              </div>
+              <div class="p-cinfo">
+                <div class="p-ctitle">Crop Production &amp; Mgmt</div>
+                <div class="p-cmeta" style="color:var(--jade)">Modules 1–2 · Downloaded</div>
+                <div class="p-prog"><div class="p-prog-fill" style="width:28%;background:linear-gradient(90deg,#1A5FBF,#4A8FE8)"></div></div>
+              </div>
+              <button style="font-size:9.5px;font-weight:800;background:var(--jade);color:#fff;border:none;border-radius:7px;padding:5px 9px;cursor:pointer">Open ↓</button>
+            </div>
+          </div>
+
+          <div class="p-sec">Unavailable Offline</div>
+          <div class="p-card">
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(192,57,43,.08)">🔴</div>
+              <div class="p-row-main"><div class="p-row-t" style="color:#C0392B">Zoom Live Session</div><div class="p-row-s">Requires connectivity · Recording available offline</div></div>
+            </div>
+            <div class="p-row">
+              <div class="p-row-ico" style="background:rgba(192,57,43,.08)">🔴</div>
+              <div class="p-row-main"><div class="p-row-t" style="color:#C0392B">M-Pesa Payment</div><div class="p-row-s">Requires network · Pay when reconnected</div></div>
+            </div>
+            <div class="p-row" style="border-bottom:none">
+              <div class="p-row-ico" style="background:rgba(192,57,43,.08)">🔴</div>
+              <div class="p-row-main"><div class="p-row-t" style="color:#C0392B">AI Content Studio</div><div class="p-row-s">LLM requires server connection</div></div>
+            </div>
+          </div>
+
+          <div class="p-sec">What Works Offline</div>
+          <div class="p-card">
+            <div class="p-row"><div class="p-row-ico" style="background:rgba(0,135,75,.1)">✅</div><div class="p-row-main"><div class="p-row-t">Watch downloaded videos</div><div class="p-row-s">Full HD playback from device storage</div></div></div>
+            <div class="p-row"><div class="p-row-ico" style="background:rgba(0,135,75,.1)">✅</div><div class="p-row-main"><div class="p-row-t">Read PDFs &amp; field guides</div><div class="p-row-s">All downloaded course materials</div></div></div>
+            <div class="p-row"><div class="p-row-ico" style="background:rgba(0,135,75,.1)">✅</div><div class="p-row-main"><div class="p-row-t">Take quizzes &amp; assessments</div><div class="p-row-s">Saved locally · synced on reconnect</div></div></div>
+            <div class="p-row"><div class="p-row-ico" style="background:rgba(0,135,75,.1)">✅</div><div class="p-row-main"><div class="p-row-t">View KNQA credentials</div><div class="p-row-s">Cached certificates always accessible</div></div></div>
+            <div class="p-row" style="border-bottom:none"><div class="p-row-ico" style="background:rgba(0,135,75,.1)">✅</div><div class="p-row-main"><div class="p-row-t">Track attendance &amp; progress</div><div class="p-row-s">All analytics available locally</div></div></div>
+          </div>
+          <div style="height:12px"></div>
+        </div>
+        <div class="phone-bnav">
+          <button class="pnav-btn active"><div class="pnav-ico">🏠</div><div class="pnav-lbl">Home</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">📚</div><div class="pnav-lbl">Courses</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">🔔</div><div class="pnav-lbl">Alerts</div></button>
+          <button class="pnav-btn"><div class="pnav-ico">👤</div><div class="pnav-lbl">Profile</div></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PLATFORM FEATURES ════════════════════════════════════════════════════ -->
+<section id="platform" style="background:var(--cream)">
+  <div class="lsec-label">Platform Features</div>
+  <h2 class="lsec-h2">One unified campus.<br>Every module. Every role.</h2>
+  <p class="lsec-sub">From admission to alumni — unified SIS, LMS, OBE, Exam Management, RPL, Attendance, Fees, Placements, and AI analytics.</p>
+  <div class="feat-grid">
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(0,92,59,.08)">📚</div><div class="feat-h">Unified SIS &amp; LMS</div><p class="feat-p">Student records, course delivery, and academic administration in one seamless system.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(196,122,0,.08)">🎯</div><div class="feat-h">OBE / CBE Framework</div><p class="feat-p">Competency tracking from PLO to CLO level, mapped directly to KNQA competency codes.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(15,61,140,.08)">📝</div><div class="feat-h">Exam Management</div><p class="feat-p">Online proctored exams with AI invigilation, automated transcripts, and revaluation workflows.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(0,92,59,.08)">✅</div><div class="feat-h">RPL — Prior Learning</div><p class="feat-p">Upload evidence, get assessed, earn KNQA credentials for what you already know.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(217,79,10,.08)">🤖</div><div class="feat-h">AOC Intelligence (AI)</div><p class="feat-p">Predictive exam readiness, at-risk learner flagging, and job matching powered by xAPI data.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(0,92,59,.08)">📵</div><div class="feat-h">PWA Offline Access</div><p class="feat-p">Full offline capability with automatic sync queue — learn anywhere, register with KNQA on reconnect.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(15,61,140,.08)">💳</div><div class="feat-h">M-Pesa Fees</div><p class="feat-p">Pay for verified certificates via M-Pesa STK Push — no bank account needed.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(196,122,0,.08)">📅</div><div class="feat-h">Attendance Tracking</div><p class="feat-p">Zoom-integrated session tracking, threshold alerts, and biometric-ready for TVET campuses.</p></div>
+    <div class="feat-cell"><div class="feat-ico" style="background:rgba(0,92,59,.08)">💼</div><div class="feat-h">Placement &amp; Careers</div><p class="feat-p">KLMIS-powered job matching, employer credential verification, and internship tracking.</p></div>
+  </div>
+</section>
+
+<!-- ══ PORTALS ═══════════════════════════════════════════════════════════════ -->
+<section id="portals" style="background:var(--sand)">
+  <div class="lsec-label">Who Is It For</div>
+  <h2 class="lsec-h2">A dedicated portal<br>for every role.</h2>
+  <div class="roles-grid">
+    <div class="role-card lnr"><div class="rc-ico">🌱</div><div class="rc-h">Learner &amp; Farmer</div><p class="rc-p">Access courses offline, earn KNQA credentials, apply for RPL, track attendance, pay via M-Pesa, and connect with employers.</p><div class="rc-link">Open Learner Portal →</div></div>
+    <div class="role-card tnr"><div class="rc-ico">👨‍🏫</div><div class="rc-h">Trainer &amp; Lecturer</div><p class="rc-p">Build CBE courses with AI Studio, run Zoom classrooms, grade essays with AI pre-scoring, track OBE attainment, manage RPL assessments.</p><div class="rc-link">Open Trainer Portal →</div></div>
+    <div class="role-card adm"><div class="rc-ico">🏛️</div><div class="rc-h">Institution Admin</div><p class="rc-p">Manage course catalogue, KNQA accreditation submissions, ERP LTI grade passback, enrolment register, and Power BI analytics.</p><div class="rc-link">Open Admin Portal →</div></div>
+    <div class="role-card knq"><div class="rc-ico">⚖️</div><div class="rc-h">KNQA &amp; MoE</div><p class="rc-p">Review RPL applications, manage the national qualifications registry, verify credentials, oversee accreditation submissions, monitor API health.</p><div class="rc-link">Open KNQA Portal →</div></div>
+    <div class="role-card emp"><div class="rc-ico">💼</div><div class="rc-h">Employer &amp; Industry</div><p class="rc-p">Verify graduate credentials instantly via QR, post vacancies matched to competencies, sponsor learner cohorts.</p><div class="rc-link">Open Employer Portal →</div></div>
+    <div class="role-card" style="background:transparent;border:2px dashed var(--border2);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:200px">
+      <div style="font-size:28px;margin-bottom:10px">🤝</div>
+      <div style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--earth);margin-bottom:8px">Join as Partner HEI</div>
+      <p style="font-size:12.5px;color:var(--text3);margin-bottom:16px">Offer your courses on AOC Digital Campus</p>
+      <a href="#" class="btn btn-jade btn-sm">Apply to Join</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INTEGRATIONS ═════════════════════════════════════════════════════════ -->
+<section id="integrations" style="background:var(--cream)">
+  <div class="lsec-label">System Integrations</div>
+  <h2 class="lsec-h2">Connected to Kenya's<br>national digital backbone.</h2>
+  <div class="int-grid">
+    <div class="int-card"><div class="int-ico" style="background:rgba(15,61,140,.08)">🏛️</div><div><div class="int-h">IPRS</div><p class="int-p">Real-time National ID verification at registration</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(0,92,59,.08)">🔐</div><div><div class="int-h">eCitizen SSO</div><p class="int-p">Sign in with your government account — no new password</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(15,61,140,.08)">📋</div><div><div class="int-h">KNQA Database</div><p class="int-p">Automatic qualification registration with KNQA reference numbers</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(196,122,0,.08)">📊</div><div><div class="int-h">KLMIS</div><p class="int-p">Labour market demand data for course recommendations</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(0,92,59,.08)">📱</div><div><div class="int-h">M-Pesa Daraja</div><p class="int-p">STK Push certificate payments — no bank needed</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(0,92,59,.08)">💬</div><div><div class="int-h">Africa is Talking</div><p class="int-p">SMS fallback notifications reach all learners offline</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(15,61,140,.08)">🎥</div><div><div class="int-h">Zoom API</div><p class="int-p">Virtual classrooms with auto-recording and attendance</p></div></div>
+    <div class="int-card"><div class="int-ico" style="background:rgba(196,122,0,.08)">🏫</div><div><div class="int-h">HEI ERPs (LTI 1.3)</div><p class="int-p">Grade passback to Banner, Ellucian, Oracle Student</p></div></div>
+  </div>
+</section>
+
+<!-- ══ CTA ═══════════════════════════════════════════════════════════════════ -->
+<div class="cta-banner">
+  <h2 class="cta-h">Kenya's agricultural future starts with learning.</h2>
+  <p class="cta-p">Join thousands of learners, lecturers, and institutions on AOC Digital Campus. KNQA accredited. Works offline. Free to access.</p>
+  <div class="cta-btns">
+    <a href="#portals" class="btn btn-white btn-lg">Start Learning Free →</a>
+    <a href="#portals" class="btn btn-ghost-w btn-lg">Register Your Institution</a>
+  </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">AOC <span>Digital Campus</span>
+        <p>Kenya's open agricultural learning platform. KNQA-accredited, CBE-aligned, and built for East Africa. Fully accessible offline.</p>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Portals</h4>
+      <a href="#">Learner Portal</a><a href="#">Trainer Portal</a>
+      <a href="#">Institution Admin</a><a href="#">KNQA Portal</a><a href="#">Employer Portal</a>
+    </div>
+    <div class="footer-col">
+      <h4>Integrations</h4>
+      <a href="#">IPRS API</a><a href="#">eCitizen SSO</a>
+      <a href="#">KNQA Database</a><a href="#">M-Pesa Daraja</a><a href="#">KLMIS</a>
+    </div>
+    <div class="footer-col">
+      <h4>About</h4>
+      <a href="#">AgriOpen Project</a><a href="#">Partner HEIs</a>
+      <a href="#">KNQA Accreditation</a><a href="#">API Documentation</a><a href="#">Privacy Policy</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 AOC Digital Campus · Ministry of Education Kenya · KNQA · All rights reserved</p>
+    <div class="footer-badges">
+      <div class="fbadge">KNQA Accredited</div>
+      <div class="fbadge">PAQAF Aligned</div>
+      <div class="fbadge">PWA Offline</div>
+      <div class="fbadge">GDPR + DPA 2019</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+let offline = false;
+
+function toggleOffline() {
+  offline = !offline;
+  const phone = document.getElementById('hero-phone');
+  const sb = document.getElementById('hero-sb');
+  const wifi = document.getElementById('hero-wifi');
+  const banner = document.getElementById('hero-off-banner');
+  const btn = document.getElementById('toggle-btn');
+  const pill1 = document.getElementById('pill-1');
+  const pill2 = document.getElementById('pill-2');
+  const pill3 = document.getElementById('pill-3');
+  const qStat = document.getElementById('queue-stat');
+
+  if (offline) {
+    phone.classList.add('offline-mode');
+    wifi.textContent = '📵';
+    banner.style.display = 'flex';
+    if (pill2) { pill2.className = 'off-pill'; pill2.textContent = '↓ Off'; }
+    btn.textContent = '📶 Restore Connection';
+    btn.style.background = 'rgba(0,92,59,.15)';
+    btn.style.color = 'var(--jade4)';
+    btn.style.borderColor = 'rgba(0,92,59,.3)';
+  } else {
+    simulateSync();
+  }
+}
+
+function triggerSync() {
+  if (!offline) return;
+  simulateSync();
+}
+
+function simulateSync() {
+  const phone = document.getElementById('hero-phone');
+  const sb = document.getElementById('hero-sb');
+  const wifi = document.getElementById('hero-wifi');
+  const banner = document.getElementById('hero-off-banner');
+  const syncBar = document.getElementById('hero-sync');
+  const btn = document.getElementById('toggle-btn');
+  const qSection = document.getElementById('queue-section');
+  const pill2 = document.getElementById('pill-2');
+  const qList = document.getElementById('q-list');
+  const qCount = document.getElementById('q-count');
+
+  banner.style.display = 'none';
+  syncBar.classList.add('show');
+
+  let step = 0;
+  const items = qList ? qList.querySelectorAll('.q-item') : [];
+  const syncing = setInterval(() => {
+    if (step < items.length) {
+      const tag = items[step].querySelector('.q-tag');
+      if (tag) {
+        tag.textContent = 'Synced ✓';
+        tag.className = 'q-tag synced';
+      }
+      const dot = items[step].querySelector('.q-dot');
+      if (dot) dot.style.background = 'var(--jade3)';
+      if (qCount) qCount.textContent = items.length - step - 1;
+      step++;
+    } else {
+      clearInterval(syncing);
+      setTimeout(() => {
+        syncBar.classList.remove('show');
+        phone.classList.remove('offline-mode');
+        sb.style.background = '';
+        wifi.textContent = '📶';
+        if (pill2) { pill2.className = 'on-pill'; pill2.textContent = 'Live'; }
+        offline = false;
+        btn.textContent = '📵 Simulate Going Offline';
+        btn.style.background = 'rgba(217,79,10,.15)';
+        btn.style.color = 'var(--offline2)';
+        btn.style.borderColor = 'rgba(217,79,10,.3)';
+        if (qSection) {
+          qSection.innerHTML = `
+            <div class="p-sec">Sync complete</div>
+            <div class="p-card">
+              <div style="padding:12px 13px;background:rgba(0,135,75,.05);border-radius:0">
+                <div style="font-size:11.5px;font-weight:700;color:var(--jade);margin-bottom:6px">✓ 3 items synced to KNQA &amp; server</div>
+                <div style="font-size:10.5px;color:#9AAA88">Quiz score registered · Forum reply posted · RPL evidence uploaded</div>
+              </div>
+            </div>`;
+        }
+        if (qCount) qCount.textContent = '0';
+        const qStat = document.getElementById('queue-stat');
+        if (qStat) {
+          qStat.style.background = 'rgba(0,135,75,.08)';
+          qStat.style.borderColor = 'rgba(0,135,75,.2)';
+          qStat.querySelector('.pv').style.color = 'var(--jade)';
+          qStat.querySelector('.pv').textContent = '✓';
+          qStat.querySelector('.pl').style.color = 'var(--jade)';
+          qStat.querySelector('.pl').textContent = 'Synced';
+        }
+      }, 600);
+    }
+  }, 700);
+}
+</script>
+</body>
+</html>
