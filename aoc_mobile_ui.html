@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AOC Mobile — AgriOpen College</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  /* brand */
+  --jade:#005C3B; --jade2:#007A4F; --jade3:#00A86B; --jade4:#34D399;
+  --earth:#1C1208; --bark:#3D2210; --bark2:#6B3A18;
+  --amber:#B87333; --amber2:#D4894A; --amber3:#F5B06A;
+  --sky:#1A3A6B; --sky2:#2454A4; --sky3:#5B8FD4;
+  --sand:#F5EDD8; --sand2:#EDE0C4; --sand3:#D4C4A0;
+  --cream:#FDFAF4; --white:#FFFFFF;
+  --text:#0D1A0A; --text2:#2D4A28; --text3:#6A7A62; --text4:#9AAA90;
+  --border:#DDD5C0; --border2:#C8BC9E;
+  /* offline */
+  --offline:#E8500A; --offline2:#FF6B2B;
+  /* status */
+  --green-s:#00875A; --amber-s:#B87333; --red-s:#C0392B; --blue-s:#1A5FAD;
+  /* ui */
+  --radius:16px; --radius-lg:22px; --radius-xl:28px; --radius-pill:99px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+  --shadow:0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.14);
+  --font-head:'Sora',sans-serif;
+  --font-body:'Space Grotesk',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --trans:all .22s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,16px);
+}
+
+body{
+  font-family:var(--font-body);
+  background:#1A1208;
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  overflow-x:hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PHONE SHELL
+═══════════════════════════════════════════════════════════ */
+.phone-shell{
+  width:390px;
+  height:844px;
+  background:var(--cream);
+  border-radius:48px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.15),
+    0 0 0 10px #0A0A0A,
+    0 0 0 12px rgba(255,255,255,.05),
+    0 40px 80px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+}
+
+/* Status bar */
+.status-bar{
+  height:44px;
+  background:var(--jade);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px 0 28px;
+  flex-shrink:0;
+  position:relative;
+  z-index:200;
+}
+.status-bar.offline-bar{background:var(--offline)}
+.status-time{font-size:15px;font-weight:700;color:#fff;font-family:var(--font-head);letter-spacing:.2px}
+.status-icons{display:flex;align-items:center;gap:6px}
+.status-icon{font-size:13px;color:rgba(255,255,255,.9)}
+.offline-chip{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  background:var(--offline2);color:#fff;
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  padding:2px 14px 3px;border-radius:0 0 10px 10px;
+  display:none;z-index:300;
+}
+.offline-chip.show{display:block}
+
+/* Screen area */
+.screen{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  position:relative;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+.screen::-webkit-scrollbar{display:none}
+
+/* Page system */
+.page{
+  display:none;
+  min-height:100%;
+  animation:slideUp .3s cubic-bezier(.4,0,.2,1);
+}
+.page.active{display:flex;flex-direction:column}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* Bottom Nav */
+.bottom-nav{
+  height:calc(60px + var(--safe-bottom));
+  background:var(--white);
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 4px var(--safe-bottom);
+  flex-shrink:0;
+  position:relative;
+  z-index:100;
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:8px 4px;border-radius:12px;cursor:pointer;
+  transition:var(--trans);border:none;background:none;font-family:var(--font-body);
+}
+.nav-btn:active{transform:scale(.92)}
+.nav-ico{font-size:20px;transition:var(--trans)}
+.nav-lbl{font-size:9.5px;font-weight:600;color:var(--text3);letter-spacing:.3px;transition:var(--trans)}
+.nav-btn.active .nav-lbl{color:var(--jade)}
+.nav-btn.active .nav-ico{transform:scale(1.1)}
+.nav-dot{width:4px;height:4px;background:var(--offline2);border-radius:50%;position:absolute;top:6px;right:6px}
+
+/* ═══════════════════════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════════════════════ */
+
+/* Top bar */
+.top-bar{
+  padding:16px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--white);
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tb-title{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text)}
+.tb-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.tb-back{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:var(--trans)}
+.tb-back:active{background:var(--sand)}
+.tb-action{width:34px;height:34px;border-radius:10px;background:var(--jade);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:var(--trans)}
+.tb-action:active{background:var(--jade2)}
+.badge-pill{background:var(--offline2);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;position:absolute;top:-2px;right:-4px}
+
+/* Offline badge */
+.offline-banner{
+  background:linear-gradient(90deg,var(--offline),var(--offline2));
+  color:#fff;padding:8px 16px;
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;flex-shrink:0;
+  display:none;
+}
+.offline-banner.show{display:flex}
+.offline-badge{padding:3px 10px;background:rgba(255,255,255,.2);border-radius:99px;font-size:10px;font-weight:700}
+
+/* Syncing indicator */
+.sync-bar{
+  background:var(--jade);color:#fff;
+  padding:6px 16px;display:none;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;flex-shrink:0;
+}
+.sync-bar.show{display:flex}
+.sync-spin{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Scroll content area */
+.scroll-area{padding:16px;flex:1;display:flex;flex-direction:column;gap:12px}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;transition:var(--trans)}
+.card:active{transform:scale(.98)}
+.card-h{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text)}
+.card-b{padding:14px 16px}
+
+/* Section label */
+.sec-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:4px 0 8px;flex-shrink:0}
+
+/* Stat cards */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:14px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.stat-card.j::after{background:var(--jade3)}.stat-card.a::after{background:var(--amber2)}.stat-card.s::after{background:var(--sky3)}.stat-card.e::after{background:var(--offline2)}
+.sv{font-family:var(--font-head);font-size:24px;font-weight:800;color:var(--text);line-height:1}
+.sl{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
+.ss{font-size:10px;font-weight:700;margin-top:5px}
+.stat-card.j .ss{color:var(--jade)}.stat-card.a .ss{color:var(--amber)}.stat-card.s .ss{color:var(--sky2)}.stat-card.e .ss{color:var(--offline)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:12px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:var(--trans);font-family:var(--font-body);letter-spacing:.2px;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.96)}
+.btn-jade{background:linear-gradient(135deg,var(--jade),var(--jade2));color:#fff;box-shadow:0 4px 14px rgba(0,92,59,.3)}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}
+.btn-amber{background:linear-gradient(135deg,var(--amber),var(--amber2));color:#fff}
+.btn-sky{background:linear-gradient(135deg,var(--sky),var(--sky2));color:#fff}
+.btn-offline{background:linear-gradient(135deg,var(--offline),var(--offline2));color:#fff}
+.btn-full{width:100%;border-radius:14px}
+.btn-sm{padding:8px 14px;font-size:12px;border-radius:10px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.bg-green{background:rgba(0,135,90,.12);color:var(--green-s)}
+.bg-amber{background:rgba(184,115,51,.12);color:var(--amber-s)}
+.bg-sky{background:rgba(26,95,173,.1);color:var(--blue-s)}
+.bg-red{background:rgba(192,57,43,.1);color:var(--red-s)}
+.bg-gray{background:var(--sand2);color:var(--text3)}
+.bg-offline{background:rgba(232,80,10,.12);color:var(--offline)}
+.dot-s{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Progress */
+.prog{height:6px;background:var(--sand2);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--jade),var(--jade4));transition:width .5s ease}
+.prog-fill.amber{background:linear-gradient(90deg,var(--amber),var(--amber3))}
+.prog-fill.sky{background:linear-gradient(90deg,var(--sky2),var(--sky3))}
+
+/* Course card */
+.course-card{background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:var(--trans)}
+.course-card:active{transform:scale(.97)}
+.course-thumb{height:80px;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative}
+.c-agri{background:linear-gradient(135deg,#0D4F2A,#00A86B)}
+.c-soil{background:linear-gradient(135deg,#4A2000,#B87333)}
+.c-biz{background:linear-gradient(135deg,#0A2A52,#2454A4)}
+.c-water{background:linear-gradient(135deg,#0A3352,#1A8AC4)}
+.c-tech{background:linear-gradient(135deg,#2A0A4A,#7A3ABF)}
+.c-food{background:linear-gradient(135deg,#3A1A00,#B84A10)}
+.c-live{background:linear-gradient(135deg,#1A3A08,#3A7A14)}
+.c-ext{background:linear-gradient(135deg,#1A2A3A,#3A5A7A)}
+.c-cli{background:linear-gradient(135deg,#003A2A,#007A5A)}
+.offline-pill{position:absolute;top:6px;right:6px;background:rgba(255,255,255,.9);border-radius:99px;padding:2px 8px;font-size:9px;font-weight:800;color:var(--offline);display:flex;align-items:center;gap:3px}
+.online-pill{position:absolute;top:6px;right:6px;background:rgba(0,200,120,.9);border-radius:99px;padding:2px 8px;font-size:9px;font-weight:800;color:#fff}
+.course-info{padding:12px}
+.c-title{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:5px}
+.c-meta{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.c-hei{font-size:10.5px;color:var(--text3);font-weight:500}
+.c-ects{font-size:10px;font-weight:700;background:var(--sand);color:var(--text2);padding:2px 7px;border-radius:99px}
+
+/* Timeline */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:12px;padding-bottom:16px;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:1.5px;background:var(--border)}
+.tl-dot{width:27px;height:27px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:1}
+.tl-dot.done{background:var(--jade);color:#fff}
+.tl-dot.now{background:var(--sky2);color:#fff;box-shadow:0 0 0 4px rgba(26,95,173,.15)}
+.tl-dot.wait{background:var(--sand2);color:var(--text3);border:1.5px solid var(--border)}
+.tl-b{flex:1;padding-top:2px}
+.tl-t{font-size:13px;font-weight:600;color:var(--text)}
+.tl-d{font-size:11.5px;color:var(--text3);margin-top:2px}
+.tl-time{font-size:10px;color:var(--text4);margin-top:3px}
+
+/* List rows */
+.list-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--sand)}
+.list-row:last-child{border-bottom:none}
+.list-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.list-main{flex:1;min-width:0}
+.list-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.list-right{font-size:11px;font-weight:700;color:var(--jade);text-align:right;flex-shrink:0}
+
+/* Form elements */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-group label{font-size:11.5px;font-weight:700;color:var(--text2);letter-spacing:.2px}
+input,select,textarea{padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;color:var(--text);font-family:var(--font-body);background:var(--white);transition:var(--trans);outline:none;width:100%;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--jade);box-shadow:0 0 0 3px rgba(0,92,59,.1)}
+textarea{resize:none;min-height:80px}
+
+/* Toggle */
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--sand)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info .ti-t{font-size:13px;font-weight:600;color:var(--text)}
+.toggle-info .ti-s{font-size:11px;color:var(--text3);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tgl-sl{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:24px;transition:.25s}
+.tgl-sl::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle input:checked + .tgl-sl{background:var(--jade)}
+.toggle input:checked + .tgl-sl::before{transform:translateX(20px)}
+
+/* Hero gradient */
+.hero-grad{
+  background:linear-gradient(160deg,var(--jade) 0%,var(--jade2) 50%,#003A28 100%);
+  padding:20px 20px 24px;color:#fff;position:relative;overflow:hidden;flex-shrink:0;
+}
+.hero-grad::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hero-grad::after{content:'';position:absolute;bottom:-20px;left:30px;width:90px;height:90px;border-radius:50%;background:rgba(0,168,107,.15)}
+
+/* AI panel */
+.ai-panel{
+  background:linear-gradient(135deg,var(--earth),#1E3A1C,#003A22);
+  border-radius:var(--radius-lg);padding:16px;color:#fff;position:relative;overflow:hidden;
+}
+.ai-panel::before{content:'';position:absolute;top:-15px;right:-15px;width:80px;height:80px;border-radius:50%;background:rgba(0,200,120,.12)}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,200,120,.2);border:1px solid rgba(0,200,120,.3);border-radius:99px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--jade4);margin-bottom:10px}
+.ai-title{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:4px}
+.ai-body{font-size:12px;opacity:.65;line-height:1.5}
+.pulse-dot{width:6px;height:6px;background:var(--jade4);border-radius:50%;animation:pulse-anim 1.5s infinite}
+@keyframes pulse-anim{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* Cert card */
+.cert-card{
+  background:linear-gradient(135deg,var(--earth) 0%,#1A3A1C 50%,var(--jade) 100%);
+  border-radius:var(--radius-lg);padding:18px;color:#fff;position:relative;overflow:hidden;
+}
+.cert-card::before{content:'';position:absolute;top:-10px;right:-10px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.06)}
+
+/* Tab bar */
+.tab-bar{display:flex;background:var(--sand);padding:3px;border-radius:12px;margin-bottom:14px;flex-shrink:0}
+.tab-btn{flex:1;padding:8px 6px;border-radius:9px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--text3);border:none;background:none;font-family:var(--font-body);transition:var(--trans);text-align:center}
+.tab-btn.active{background:var(--white);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* Module grid */
+.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mod-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;cursor:pointer;transition:var(--trans);text-align:center;position:relative}
+.mod-card:active{transform:scale(.94)}
+.mod-card.offline-avail::after{content:'↓';position:absolute;top:5px;right:5px;font-size:9px;font-weight:800;color:var(--jade);background:var(--sand);border-radius:99px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;line-height:14px}
+.mod-ico{font-size:24px;margin-bottom:7px}
+.mod-title{font-size:10.5px;font-weight:700;color:var(--text);line-height:1.3}
+.mod-sub{font-size:9.5px;color:var(--text3);margin-top:2px}
+
+/* RPL evidence grid */
+.evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ev-card{border:2px dashed var(--border2);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:var(--trans)}
+.ev-card.uploaded{border-style:solid;border-color:var(--jade);background:rgba(0,92,59,.04)}
+.ev-card:active{transform:scale(.96)}
+.ev-ico{font-size:22px;margin-bottom:5px}
+.ev-lbl{font-size:11.5px;font-weight:700;color:var(--text2)}
+.ev-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* Tracker steps */
+.tracker{display:flex;gap:0;margin:16px 0}
+.t-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.t-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:var(--border)}
+.t-step.done:not(:last-child)::after{background:var(--jade)}
+.t-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid var(--border);background:var(--white);color:var(--text3);z-index:1}
+.t-step.done .t-circle{background:var(--jade);border-color:var(--jade);color:#fff}
+.t-step.active .t-circle{background:var(--sky2);border-color:var(--sky2);color:#fff;box-shadow:0 0 0 4px rgba(26,95,173,.15)}
+.t-label{font-size:9px;color:var(--text3);margin-top:5px;text-align:center;font-weight:600;max-width:60px;line-height:1.2}
+.t-step.done .t-label{color:var(--jade)}
+.t-step.active .t-label{color:var(--sky2);font-weight:700}
+
+/* Attendance calendar */
+.att-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:8px}
+.att-day{height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700}
+.att-p{background:rgba(0,168,107,.18);color:var(--jade)}
+.att-a{background:rgba(192,57,43,.12);color:var(--red-s)}
+.att-h{background:var(--sand2);color:var(--text4)}
+.att-td{outline:2px solid var(--jade);outline-offset:1px}
+
+/* Job card */
+.job-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:var(--trans);display:flex;gap:10px;align-items:flex-start}
+.job-card:active{transform:scale(.97)}
+.job-logo{width:38px;height:38px;border-radius:10px;background:var(--sand2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.job-title{font-size:13px;font-weight:700;color:var(--text)}
+.job-co{font-size:11px;color:var(--text3);margin-top:2px}
+.job-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.job-tag{padding:2px 7px;background:var(--sand);border-radius:99px;font-size:9.5px;color:var(--text2);font-weight:600}
+
+/* KNQA ref */
+.knqa-ref{font-family:var(--font-mono);font-size:11px;background:var(--sand);padding:4px 8px;border-radius:7px;color:var(--sky);font-weight:500;display:inline-block}
+
+/* Offline queue card */
+.queue-card{background:rgba(232,80,10,.06);border:1px solid rgba(232,80,10,.2);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.queue-ico{font-size:20px}
+.queue-t{font-size:12.5px;font-weight:700;color:var(--offline)}
+.queue-s{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Notification item */
+.notif-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--sand)}
+.notif-item:last-child{border-bottom:none}
+.notif-item.unread .notif-t{font-weight:700}
+.notif-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.notif-t{font-size:12.5px;color:var(--text)}
+.notif-b{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.notif-time{font-size:10px;color:var(--text4);margin-top:3px}
+.unread-dot{width:7px;height:7px;background:var(--jade);border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* Wizard steps */
+.wizard-steps{display:flex;overflow-x:auto;gap:0;padding-bottom:2px;flex-shrink:0}
+.wizard-steps::-webkit-scrollbar{display:none}
+.wiz-step{flex-shrink:0;padding:10px 12px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:var(--trans)}
+.wiz-step.active{background:rgba(0,92,59,.06);border-radius:10px}
+.ws-n{width:24px;height:24px;border-radius:50%;background:var(--sand2);border:1.5px solid var(--border);color:var(--text3);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wiz-step.done .ws-n{background:var(--jade);border-color:var(--jade);color:#fff}
+.wiz-step.active .ws-n{background:var(--sky2);border-color:var(--sky2);color:#fff}
+.ws-l{font-size:11px;font-weight:700;color:var(--text2);white-space:nowrap}
+.ws-s{font-size:9.5px;color:var(--text3);white-space:nowrap}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:12px 0;flex-shrink:0}
+
+/* ROLE SWITCHER (demo top) */
+.role-switcher{
+  display:flex;gap:6px;flex-wrap:wrap;
+  padding:10px 16px;background:var(--sand);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.role-chip{
+  padding:5px 12px;border-radius:99px;font-size:10.5px;font-weight:700;
+  cursor:pointer;transition:var(--trans);border:1.5px solid var(--border2);
+  background:var(--white);color:var(--text3);
+}
+.role-chip.active{background:var(--jade);border-color:var(--jade);color:#fff}
+.role-chip:active{transform:scale(.94)}
+
+/* Misc */
+.sp{height:8px}
+.tag{display:inline-block;padding:2px 8px;background:var(--sand);border-radius:99px;font-size:10px;color:var(--text2);font-weight:600;margin:2px}
+.alert{padding:11px 14px;border-radius:10px;font-size:12px;display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;line-height:1.5}
+.al-i{background:rgba(26,95,173,.07);border:1px solid rgba(26,95,173,.18);color:var(--blue-s)}
+.al-s{background:rgba(0,168,107,.07);border:1px solid rgba(0,168,107,.18);color:var(--green-s)}
+.al-w{background:rgba(184,115,51,.07);border:1px solid rgba(184,115,51,.2);color:var(--amber-s)}
+.al-off{background:rgba(232,80,10,.07);border:1px solid rgba(232,80,10,.2);color:var(--offline)}
+</style>
+</head>
+<body>
+
+<div class="phone-shell">
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <span class="status-icon" id="wifi-icon">📶</span>
+      <span class="status-icon">🔋</span>
+    </div>
+    <div class="offline-chip" id="offline-chip">OFFLINE MODE</div>
+  </div>
+
+  <!-- Role Switcher (demo) -->
+  <div class="role-switcher">
+    <div class="role-chip active" onclick="setRole('learner')">🌱 Learner</div>
+    <div class="role-chip" onclick="setRole('trainer')">👨‍🏫 Trainer</div>
+    <div class="role-chip" onclick="setRole('admin')">🏛️ Admin</div>
+    <div class="role-chip" onclick="setRole('knqa')">⚖️ KNQA</div>
+  </div>
+
+  <!-- Screen -->
+  <div class="screen" id="screen">
+
+    <!-- ══════ LEARNER PAGES ══════════════════════════════════════════════ -->
+
+    <!-- LEARNER: HOME DASHBOARD -->
+    <div class="page active" id="page-home">
+      <div class="offline-banner" id="offline-banner">
+        <span>📵</span>
+        <span>Working offline — changes queued for sync</span>
+        <span class="offline-badge">3 pending</span>
+      </div>
+      <div class="sync-bar" id="sync-bar">
+        <span class="sync-spin">⟳</span>
+        <span>Syncing 3 items to server…</span>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero-grad">
+        <div style="position:relative;z-index:1">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">Good morning</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:#fff;margin-bottom:2px">Wanjiru Kamau 👋</div>
+          <div style="font-size:11.5px;color:rgba(255,255,255,.65);margin-bottom:16px">AOC-LRN-2026-00341  ·  Nairobi</div>
+          <div style="display:flex;gap:16px">
+            <div><div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:#fff">3</div><div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px">Active Courses</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:#fff">8</div><div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px">ECTS Credits</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:#fff">2</div><div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px">Credentials</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:#fff">94%</div><div style="font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px">Attendance</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+        <!-- Offline queue -->
+        <div class="queue-card" id="queue-card" style="display:none">
+          <span class="queue-ico">📤</span>
+          <div>
+            <div class="queue-t">3 items queued for sync</div>
+            <div class="queue-s">Quiz attempt · Forum post · RPL evidence</div>
+          </div>
+          <button class="btn btn-offline btn-sm" style="flex-shrink:0" onclick="simulateSync()">Sync now</button>
+        </div>
+
+        <!-- AOC Intelligence -->
+        <div class="ai-panel">
+          <div class="ai-badge"><span class="pulse-dot"></span> AOC Intelligence</div>
+          <div class="ai-title">Your Soil Science exam is in 6 days</div>
+          <div class="ai-body">Readiness: 87% · Complete Module 7 to reach 93%</div>
+        </div>
+
+        <!-- Continue learning -->
+        <div class="sec-label">Continue Learning</div>
+        <div onclick="navigate('courses')" style="cursor:pointer">
+          <div class="course-card">
+            <div class="course-thumb c-agri">
+              🌱
+              <div class="offline-pill">↓ Offline</div>
+            </div>
+            <div class="course-info">
+              <div class="c-title">Soil Science & Fertility Management</div>
+              <div class="c-meta"><span class="c-hei">UoN</span><span class="c-ects">5 ECTS · NQF 5</span></div>
+              <div class="prog"><div class="prog-fill" style="width:72%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:5px">
+                <span style="font-size:10.5px;color:var(--text3)">Module 6 of 8</span>
+                <span style="font-size:10.5px;font-weight:800;color:var(--jade)">72%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="sec-label">My Progress</div>
+        <div class="stat-row">
+          <div class="stat-card j"><div class="sv">81%</div><div class="sl">Avg Score</div><div class="ss">↑ 4% this month</div></div>
+          <div class="stat-card a"><div class="sv">14</div><div class="sl">Day Streak</div><div class="ss">Personal best!</div></div>
+          <div class="stat-card s"><div class="sv">2</div><div class="sl">Exams Due</div><div class="ss">Sep 20 & 27</div></div>
+          <div class="stat-card e"><div class="sv">3</div><div class="sl">Offline Queued</div><div class="ss">Pending sync</div></div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="sec-label">Quick Actions</div>
+        <div class="module-grid">
+          <div class="mod-card offline-avail" onclick="navigate('courses')"><div class="mod-ico">📚</div><div class="mod-title">My Courses</div><div class="mod-sub">3 active</div></div>
+          <div class="mod-card offline-avail" onclick="navigate('exams')"><div class="mod-ico">📝</div><div class="mod-title">Exams</div><div class="mod-sub">2 upcoming</div></div>
+          <div class="mod-card" onclick="navigate('rpl')"><div class="mod-ico">✅</div><div class="mod-title">RPL</div><div class="mod-sub">In review</div></div>
+          <div class="mod-card" onclick="navigate('creds')"><div class="mod-ico">🏅</div><div class="mod-title">Credentials</div><div class="mod-sub">KNQA certs</div></div>
+          <div class="mod-card" onclick="navigate('fees')"><div class="mod-ico">💳</div><div class="mod-title">Fees</div><div class="mod-sub">M-Pesa</div></div>
+          <div class="mod-card" onclick="navigate('placement')"><div class="mod-ico">💼</div><div class="mod-title">Careers</div><div class="mod-sub">4 matches</div></div>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="sec-label">Recent Activity</div>
+        <div class="card">
+          <div class="card-b" style="padding:8px 14px">
+            <div class="tl">
+              <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-b"><div class="tl-t">Module 6 completed</div><div class="tl-d">Soil Science · Score 88%</div><div class="tl-time">2 hrs ago</div></div></div>
+              <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-b"><div class="tl-t">Zoom session attended</div><div class="tl-d">Lab session · Prof. Kariuki</div><div class="tl-time">Yesterday</div></div></div>
+              <div class="tl-item"><div class="tl-dot now">→</div><div class="tl-b"><div class="tl-t">Exam registered</div><div class="tl-d">Soil Science Final · Sep 20</div><div class="tl-time">2 days ago</div></div></div>
+              <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-b"><div class="tl-t">KNQA credential issued</div><div class="tl-d">KNQA-2026-00912847</div><div class="tl-time">Last week</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: COURSES -->
+    <div class="page" id="page-courses">
+      <div class="top-bar">
+        <div><div class="tb-title">My Courses</div><div class="tb-sub">3 active · 2 completed</div></div>
+        <button class="tb-action" onclick="navigate('catalogue')">＋</button>
+      </div>
+      <div style="padding:12px 16px 0;flex-shrink:0">
+        <div class="tab-bar">
+          <div class="tab-btn active">Active (3)</div>
+          <div class="tab-btn">Completed</div>
+          <div class="tab-btn">Catalogue</div>
+        </div>
+      </div>
+      <div class="scroll-area" style="padding-top:4px">
+        <div class="alert al-off" id="offline-courses-alert"><span>📵</span><span>Starred courses available offline. Others require connectivity.</span></div>
+
+        <div class="course-card">
+          <div class="course-thumb c-agri">🌱<div class="offline-pill">↓ Offline</div></div>
+          <div class="course-info">
+            <div class="c-title">Soil Science & Fertility Management</div>
+            <div class="c-meta"><span class="c-hei">Univ. of Nairobi</span><span class="c-ects">5 ECTS</span><span class="badge bg-amber"><span class="dot-s"></span>In Progress</span></div>
+            <div class="prog"><div class="prog-fill" style="width:72%"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <span style="font-size:10.5px;color:var(--text3)">6/8 modules · Exam Sep 20</span>
+              <button class="btn btn-jade btn-sm">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-thumb c-biz">💼<div class="online-pill">Online</div></div>
+          <div class="course-info">
+            <div class="c-title">Agribusiness & Value Chain Mgmt</div>
+            <div class="c-meta"><span class="c-hei">Laikipia Univ.</span><span class="c-ects">5 ECTS</span><span class="badge bg-amber"><span class="dot-s"></span>In Progress</span></div>
+            <div class="prog"><div class="prog-fill amber" style="width:45%"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <span style="font-size:10.5px;color:var(--text3)">4/9 modules · Due Sep 22</span>
+              <button class="btn btn-outline btn-sm">Open</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="course-card">
+          <div class="course-thumb c-soil">🚜<div class="offline-pill">↓ Offline</div></div>
+          <div class="course-info">
+            <div class="c-title">Crop Production & Management</div>
+            <div class="c-meta"><span class="c-hei">SEKU</span><span class="c-ects">3 ECTS</span><span class="badge bg-sky"><span class="dot-s"></span>Early</span></div>
+            <div class="prog"><div class="prog-fill sky" style="width:28%"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <span style="font-size:10.5px;color:var(--text3)">2/6 modules</span>
+              <button class="btn btn-outline btn-sm">Open</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Offline Downloaded</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,92,59,.1)">📥</div>
+              <div class="list-main"><div class="list-title">Soil Science — Modules 1–6</div><div class="list-sub">Video · PDF · Quizzes · 128 MB</div></div>
+              <div class="list-right" style="color:var(--jade)">Ready</div>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,92,59,.1)">📥</div>
+              <div class="list-main"><div class="list-title">Crop Production — Modules 1–2</div><div class="list-sub">Video · PDF · 48 MB</div></div>
+              <div class="list-right" style="color:var(--jade)">Ready</div>
+            </div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: EXAMS -->
+    <div class="page" id="page-exams">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('home')">←</button>
+        <div><div class="tb-title">Exam Management</div><div class="tb-sub">2 upcoming · 3 past results</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="alert al-w"><span>⚠️</span><span>Upcoming: Soil Science Final — Sep 20. Proctored. Webcam required. System check needed.</span></div>
+
+        <div class="sec-label">Upcoming Examinations</div>
+        <div class="card">
+          <div class="card-b" style="padding:14px">
+            <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px">
+              <div style="width:48px;text-align:center;background:var(--sand);border-radius:10px;padding:6px 4px;flex-shrink:0">
+                <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--text)">20</div>
+                <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase">Sep</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px">Soil Science — Final Assessment</div>
+                <div style="font-size:11.5px;color:var(--text3);margin-bottom:8px">UoN · Online · Proctored · 120 min</div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+                  <span class="tag">Webcam required</span><span class="tag">AI proctor</span><span class="tag">No copy-paste</span>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-jade btn-sm" style="flex:1">System Check</button>
+                  <button class="btn btn-outline btn-sm" style="flex:1">Practice</button>
+                </div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:48px;text-align:center;background:var(--sand);border-radius:10px;padding:6px 4px;flex-shrink:0">
+                <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--text)">27</div>
+                <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase">Sep</div>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px">Agribusiness — Mid-Semester</div>
+                <div style="font-size:11.5px;color:var(--text3);margin-bottom:8px">Laikipia · Online · Open book · 90 min</div>
+                <button class="btn btn-outline btn-sm" style="width:100%">Register for Exam</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Past Results</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,135,90,.1)">📊</div>
+              <div class="list-main"><div class="list-title">Soil Science Module 5 Quiz</div><div class="list-sub">Score: 88% · Grade A</div></div>
+              <button class="btn btn-outline btn-sm">PDF</button>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,135,90,.1)">📊</div>
+              <div class="list-main"><div class="list-title">Crop Production Module 3</div><div class="list-sub">Score: 82% · Grade B+</div></div>
+              <button class="btn btn-outline btn-sm">PDF</button>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(184,115,51,.1)">📊</div>
+              <div class="list-main"><div class="list-title">Agribusiness Module 2</div><div class="list-sub">Score: 74% · Grade B</div></div>
+              <button class="btn btn-outline btn-sm">PDF</button>
+            </div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: RPL -->
+    <div class="page" id="page-rpl">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('home')">←</button>
+        <div><div class="tb-title">RPL Application</div><div class="tb-sub">Recognition of Prior Learning</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="alert al-i"><span>ℹ️</span><span>RPL lets you earn KNQA credentials for skills gained through work experience — without retaking courses you already know.</span></div>
+
+        <div class="wizard-steps">
+          <div class="wiz-step done"><div class="ws-n">✓</div><div><div class="ws-l">Personal</div><div class="ws-s">IPRS verified</div></div></div>
+          <div class="wiz-step done"><div class="ws-n">✓</div><div><div class="ws-l">Claims</div><div class="ws-s">Domains set</div></div></div>
+          <div class="wiz-step active"><div class="ws-n">3</div><div><div class="ws-l">Evidence</div><div class="ws-s">Upload docs</div></div></div>
+          <div class="wiz-step"><div class="ws-n">4</div><div><div class="ws-l">Review</div><div class="ws-s">KNQA assess</div></div></div>
+          <div class="wiz-step"><div class="ws-n">5</div><div><div class="ws-l">Outcome</div><div class="ws-s">Credit</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div class="card-title">Claimed Competencies</div></div>
+          <div class="card-b" style="padding:10px 14px">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <span class="badge bg-green">✓ SOI-101</span>
+              <span class="badge bg-green">✓ CROP-201</span>
+              <span class="badge bg-amber">⏳ IRR-301</span>
+              <span class="badge bg-sky" onclick="navigate('rpl')">+ Add more</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Step 3 — Upload Evidence (2 of 6 uploaded)</div>
+        <div class="evidence-grid">
+          <div class="ev-card uploaded"><div class="ev-ico">📄</div><div class="ev-lbl">Employment Letter</div><div class="ev-sub">Kilimo Farm ✓</div></div>
+          <div class="ev-card uploaded"><div class="ev-ico">📜</div><div class="ev-lbl">Training Certificate</div><div class="ev-sub">KARI 2019 ✓</div></div>
+          <div class="ev-card"><div class="ev-ico">📷</div><div class="ev-lbl">Work Portfolio</div><div class="ev-sub">Tap to upload</div></div>
+          <div class="ev-card"><div class="ev-ico">🎥</div><div class="ev-lbl">Video Demo</div><div class="ev-sub">Max 5 min</div></div>
+          <div class="ev-card"><div class="ev-ico">✍️</div><div class="ev-lbl">Referee Statement</div><div class="ev-sub">Employer letter</div></div>
+          <div class="ev-card"><div class="ev-ico">🧪</div><div class="ev-lbl">Practical Assessment</div><div class="ev-sub">Schedule</div></div>
+        </div>
+
+        <div class="sec-label">My Application Status</div>
+        <div class="tracker">
+          <div class="t-step done"><div class="t-circle">✓</div><div class="t-label">Submitted</div></div>
+          <div class="t-step done"><div class="t-circle">✓</div><div class="t-label">Docs Verified</div></div>
+          <div class="t-step active"><div class="t-circle">3</div><div class="t-label">Assessor Review</div></div>
+          <div class="t-step"><div class="t-circle">4</div><div class="t-label">KNQA Approval</div></div>
+          <div class="t-step"><div class="t-circle">5</div><div class="t-label">Credit Awarded</div></div>
+        </div>
+
+        <div class="alert al-i"><span>📋</span><span>Application RPL-AOC-2026-0041 is with Dr. A. Mutua (KNQA Assessor). Expected decision: Oct 15, 2026.</span></div>
+
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" style="flex:1">← Back</button>
+          <button class="btn btn-jade" style="flex:2">Submit Evidence →</button>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: CREDENTIALS / KNQA -->
+    <div class="page" id="page-creds">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('home')">←</button>
+        <div><div class="tb-title">My Credentials</div><div class="tb-sub">KNQA National Registry</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="cert-card">
+          <div style="position:relative;z-index:1">
+            <div style="font-size:9.5px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:4px">KNQA Registered Qualification</div>
+            <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff;margin-bottom:16px">Soil Science &amp; Fertility Management</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+              <div><div style="font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Issued to</div><div style="font-size:12px;font-weight:700;color:#fff">Wanjiru Kamau</div></div>
+              <div><div style="font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Date</div><div style="font-size:12px;font-weight:700;color:#fff">Aug 30, 2026</div></div>
+              <div><div style="font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">KNQA Reference</div><div style="font-family:var(--font-mono);font-size:10px;font-weight:500;color:rgba(255,255,255,.8)">KNQA-2026-00912847</div></div>
+              <div><div style="font-size:9px;opacity:.5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">ECTS / NQF</div><div style="font-size:12px;font-weight:700;color:#fff">5 ECTS · Level 5</div></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);flex:1">⬇ Download</button>
+              <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);flex:1">🔗 Share</button>
+              <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);flex:1">✓ Verify</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">All Credentials</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,92,59,.12)">🏅</div>
+              <div class="list-main">
+                <div class="list-title">Soil Science &amp; Fertility Mgmt</div>
+                <div class="list-sub"><span class="knqa-ref">KNQA-2026-00912847</span></div>
+              </div>
+              <span class="badge bg-green" style="flex-shrink:0">Active</span>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(0,92,59,.12)">🏅</div>
+              <div class="list-main">
+                <div class="list-title">Crop Production &amp; Management</div>
+                <div class="list-sub"><span class="knqa-ref">KNQA-2026-00741223</span></div>
+              </div>
+              <span class="badge bg-green" style="flex-shrink:0">Active</span>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(232,80,10,.1)">⏳</div>
+              <div class="list-main">
+                <div class="list-title">RPL — Crop Pest Mgmt (CROP-201)</div>
+                <div class="list-sub"><span class="knqa-ref">RPL-AOC-2026-0041</span></div>
+              </div>
+              <span class="badge bg-amber" style="flex-shrink:0">Review</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Competency Portfolio</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">🎯</div><div class="list-main"><div class="list-title">SOI-101 — Soil sampling & analysis</div><div class="list-sub">NQF 5 · Course · Aug 2026</div></div><span class="badge bg-green">✓</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">🎯</div><div class="list-main"><div class="list-title">SOI-102 — Fertility management</div><div class="list-sub">NQF 5 · Course · Aug 2026</div></div><span class="badge bg-green">✓</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(184,115,51,.1)">🎯</div><div class="list-main"><div class="list-title">CROP-201 — Pest management</div><div class="list-sub">NQF 4 · RPL · Pending</div></div><span class="badge bg-amber">⏳</span></div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: FEES -->
+    <div class="page" id="page-fees">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('home')">←</button>
+        <div><div class="tb-title">Fees &amp; Payments</div><div class="tb-sub">M-Pesa · Statements · Receipts</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="alert al-s"><span>✓</span><span>Course access is free. Certificate fees apply (KES 500 per KNQA credential).</span></div>
+
+        <div class="card">
+          <div class="card-h"><div class="card-title">Pay for Certificate</div></div>
+          <div class="card-b">
+            <div style="background:var(--sand);border-radius:12px;padding:14px;margin-bottom:14px">
+              <div style="font-weight:700;font-size:14px;margin-bottom:4px">Soil Science — KNQA Certificate</div>
+              <div style="font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--jade)">KES 500</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">University of Nairobi · KNQA verified</div>
+            </div>
+            <div class="form-group">
+              <label>M-Pesa Phone Number</label>
+              <input value="+254 712 345 678" type="tel">
+            </div>
+            <button class="btn btn-jade btn-full" style="background:linear-gradient(135deg,#006B3C,#00A85A)">📱 Pay via M-Pesa STK Push</button>
+            <div style="text-align:center;font-size:10.5px;color:var(--text3);margin-top:8px">PIN prompt will appear on your phone</div>
+          </div>
+        </div>
+
+        <div class="sec-label">Transaction History</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">✅</div><div class="list-main"><div class="list-title">Crop Production Certificate</div><div class="list-sub">Jun 15 · QK7XYZ789 · KES 500</div></div><span class="badge bg-green">Paid</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">✅</div><div class="list-main"><div class="list-title">Registration Fee</div><div class="list-sub">Mar 10 · Waived</div></div><span class="badge bg-gray">Waived</span></div>
+          </div>
+        </div>
+
+        <div class="sec-label">Financial Aid &amp; Scholarships</div>
+        <div class="card">
+          <div class="card-b">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0">
+              <div style="width:38px;height:38px;background:rgba(26,95,173,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🎓</div>
+              <div><div style="font-size:13px;font-weight:700">Mastercard Foundation Bursary</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Certificate fees covered for eligible learners</div></div>
+            </div>
+            <button class="btn btn-outline btn-full btn-sm" style="margin-top:8px">Check Eligibility</button>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: PLACEMENT -->
+    <div class="page" id="page-placement">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('home')">←</button>
+        <div><div class="tb-title">Careers &amp; Placement</div><div class="tb-sub">4 matches · KLMIS powered</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="ai-panel" style="margin-bottom:4px">
+          <div class="ai-badge"><span class="pulse-dot"></span> AOC Intelligence Match</div>
+          <div class="ai-title">4 jobs match your competencies</div>
+          <div class="ai-body">SOI-101 + SOI-102 · Nakuru region · Career readiness: 67%</div>
+        </div>
+
+        <div class="sec-label">Matched Opportunities</div>
+        <div class="job-card"><div class="job-logo">🌿</div><div style="flex:1"><div class="job-title">Junior Agronomist — Rift Valley</div><div class="job-co">KilimoTech Ltd · Nakuru · Full-time</div><div class="job-tags"><span class="job-tag">SOI-101 ✓</span><span class="job-tag">CROP-201</span><span class="job-tag">KES 42K/mo</span></div></div><button class="btn btn-jade btn-sm">Apply</button></div>
+        <div class="job-card"><div class="job-logo">🏭</div><div style="flex:1"><div class="job-title">Agricultural Extension Officer</div><div class="job-co">Ministry of Agriculture · National</div><div class="job-tags"><span class="job-tag">SOI-101 ✓</span><span class="job-tag">Gov. role</span></div></div><button class="btn btn-outline btn-sm">View</button></div>
+        <div class="job-card"><div class="job-logo">🎓</div><div style="flex:1"><div class="job-title">Agri-Research Intern (6 months)</div><div class="job-co">KARI · Nairobi · AOC Sponsored</div><div class="job-tags"><span class="job-tag">AOC Sponsored</span></div></div><button class="btn btn-amber btn-sm" style="color:#fff">Apply</button></div>
+
+        <div class="sec-label">Skills in Demand — KLMIS</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-main"><div class="list-title">Irrigation management</div></div><div><div class="prog" style="width:80px"><div class="prog-fill" style="width:87%"></div></div><div style="font-size:10px;text-align:right;color:var(--jade);font-weight:700;margin-top:2px">Index 87</div></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Crop pest management</div></div><div><div class="prog" style="width:80px"><div class="prog-fill" style="width:81%"></div></div><div style="font-size:10px;text-align:right;color:var(--jade);font-weight:700;margin-top:2px">Index 81</div></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Soil testing</div></div><div><div class="prog" style="width:80px"><div class="prog-fill amber" style="width:74%"></div></div><div style="font-size:10px;text-align:right;color:var(--amber);font-weight:700;margin-top:2px">Index 74</div></div></div>
+          </div>
+        </div>
+
+        <div class="sec-label">Graduation &amp; Alumni</div>
+        <div class="card">
+          <div class="card-b">
+            <div style="display:flex;gap:10px;align-items:center">
+              <div style="width:38px;height:38px;background:rgba(0,92,59,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🎓</div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700">Certificate Pathway</div><div style="font-size:11px;color:var(--text3);margin-top:2px">2/3 courses complete</div></div>
+              <span style="font-weight:800;color:var(--jade)">67%</span>
+            </div>
+            <div class="prog" style="margin-top:10px"><div class="prog-fill" style="width:67%"></div></div>
+            <button class="btn btn-outline btn-full btn-sm" style="margin-top:12px">View Full Pathway</button>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- LEARNER: ATTENDANCE -->
+    <div class="page" id="page-attendance">
+      <div class="top-bar">
+        <button class="tb-back" onclick="navigate('profile')">←</button>
+        <div><div class="tb-title">Attendance</div><div class="tb-sub">Sep 2026 · 94% overall</div></div>
+        <div style="width:34px"></div>
+      </div>
+      <div class="scroll-area">
+        <div class="stat-row">
+          <div class="stat-card j"><div class="sv">94%</div><div class="sl">Overall Rate</div><div class="ss">Above threshold</div></div>
+          <div class="stat-card a"><div class="sv">47</div><div class="sl">Sessions Present</div><div class="ss">This semester</div></div>
+          <div class="stat-card e"><div class="sv">3</div><div class="sl">Absences</div><div class="ss">Below limit</div></div>
+          <div class="stat-card s"><div class="sv">75%</div><div class="sl">Minimum Required</div><div class="ss">Threshold</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div class="card-title">September 2026</div></div>
+          <div class="card-b" style="padding:12px 14px">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px">
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">M</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">T</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">W</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">T</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">F</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">S</div>
+              <div style="font-size:9px;text-align:center;color:var(--text3);font-weight:700">S</div>
+            </div>
+            <div class="att-grid">
+              <div class="att-day att-h">1</div><div class="att-day att-p">2</div><div class="att-day att-p">3</div><div class="att-day att-p">4</div><div class="att-day att-p">5</div><div class="att-day att-h">6</div><div class="att-day att-h">7</div>
+              <div class="att-day att-p">8</div><div class="att-day att-a">9</div><div class="att-day att-p">10</div><div class="att-day att-p">11</div><div class="att-day att-p">12</div><div class="att-day att-h">13</div><div class="att-day att-h">14</div>
+              <div class="att-day att-p">15</div><div class="att-day att-p">16</div><div class="att-day att-td">17</div><div class="att-day att-h">18</div><div class="att-day att-h">19</div><div class="att-day att-h">20</div><div class="att-day att-h">21</div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:10px">
+              <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;background:rgba(0,168,107,.18);border-radius:3px"></div><span style="font-size:10px;color:var(--text3)">Present</span></div>
+              <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;background:rgba(192,57,43,.12);border-radius:3px"></div><span style="font-size:10px;color:var(--text3)">Absent</span></div>
+              <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;background:var(--sand2);border-radius:3px"></div><span style="font-size:10px;color:var(--text3)">Holiday</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div class="card-title">By Course</div></div>
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-main"><div class="list-title">Soil Science</div><div class="list-sub">21/22 sessions</div></div><div style="text-align:right"><div class="prog" style="width:80px;margin-bottom:3px"><div class="prog-fill" style="width:95%"></div></div><span style="font-size:11px;font-weight:800;color:var(--jade)">95%</span></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Agribusiness</div><div class="list-sub">17/18 sessions</div></div><div style="text-align:right"><div class="prog" style="width:80px;margin-bottom:3px"><div class="prog-fill" style="width:94%"></div></div><span style="font-size:11px;font-weight:800;color:var(--jade)">94%</span></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Crop Production</div><div class="list-sub">9/10 sessions</div></div><div style="text-align:right"><div class="prog" style="width:80px;margin-bottom:3px"><div class="prog-fill amber" style="width:90%"></div></div><span style="font-size:11px;font-weight:800;color:var(--amber)">90%</span></div></div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- ══════ TRAINER PAGE ══════════════════════════════════════════════════ -->
+    <div class="page" id="page-trainer">
+      <div class="hero-grad" style="background:linear-gradient(160deg,var(--bark) 0%,var(--bark2) 50%,#4A2000 100%)">
+        <div style="position:relative;z-index:1">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">Trainer Portal</div>
+          <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:#fff;margin-bottom:12px">Prof. James Kariuki</div>
+          <div style="display:flex;gap:12px">
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">148</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Learners</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">81%</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Pass Rate</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">5</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">To Grade</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">3</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">RPL Queue</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="alert al-w"><span>⏰</span><span>5 essays pending grade (Module 6) — due today. 3 RPL assessments in queue.</span></div>
+
+        <div class="sec-label">My Courses — Performance</div>
+        <div class="card">
+          <div class="card-b" style="padding:12px 14px">
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+              <div style="width:40px;height:40px;background:linear-gradient(135deg,#0D4F2A,#00A86B);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌱</div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700">Soil Science &amp; Fertility Mgmt</div><div style="font-size:11px;color:var(--text3)">96 learners · 5 ECTS · UoN</div></div>
+              <span class="badge bg-green"><span class="dot-s"></span>Active</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+              <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--jade);font-family:var(--font-head)">68%</div><div style="font-size:9px;color:var(--text3)">Completion</div></div>
+              <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--amber);font-family:var(--font-head)">82%</div><div style="font-size:9px;color:var(--text3)">Avg Score</div></div>
+              <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--jade);font-family:var(--font-head)">87%</div><div style="font-size:9px;color:var(--text3)">Pass Rate</div></div>
+              <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--offline);font-family:var(--font-head)">7</div><div style="font-size:9px;color:var(--text3)">At Risk</div></div>
+            </div>
+            <div class="prog"><div class="prog-fill" style="width:68%"></div></div>
+          </div>
+        </div>
+
+        <div class="sec-label">Quick Actions</div>
+        <div class="module-grid">
+          <div class="mod-card"><div class="mod-ico">📝</div><div class="mod-title">Grade Essays</div><div class="mod-sub">5 pending</div></div>
+          <div class="mod-card"><div class="mod-ico">👥</div><div class="mod-title">Cohort</div><div class="mod-sub">148 learners</div></div>
+          <div class="mod-card"><div class="mod-ico">🎥</div><div class="mod-title">Start Zoom</div><div class="mod-sub">Live now</div></div>
+          <div class="mod-card"><div class="mod-ico">✅</div><div class="mod-title">RPL Queue</div><div class="mod-sub">3 awaiting</div></div>
+          <div class="mod-card"><div class="mod-ico">🤖</div><div class="mod-title">AI Studio</div><div class="mod-sub">Build content</div></div>
+          <div class="mod-card"><div class="mod-ico">📊</div><div class="mod-title">OBE Report</div><div class="mod-sub">Outcomes</div></div>
+        </div>
+
+        <div class="sec-label">At-Risk Learners</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-ico" style="background:rgba(192,57,43,.1)">⚠️</div><div class="list-main"><div class="list-title">David Kamau</div><div class="list-sub">44% · 2 missed sessions · overdue</div></div><button class="btn btn-offline btn-sm">Intervene</button></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(192,57,43,.1)">⚠️</div><div class="list-main"><div class="list-title">Brian Otieno</div><div class="list-sub">51% · Low engagement</div></div><button class="btn btn-outline btn-sm">Message</button></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(184,115,51,.1)">⚡</div><div class="list-main"><div class="list-title">Grace Njoroge</div><div class="list-sub">58% · Missing assignment</div></div><button class="btn btn-outline btn-sm">Message</button></div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- ══════ INSTITUTION / KNQA PAGE ══════════════════════════════════════ -->
+    <div class="page" id="page-admin">
+      <div class="hero-grad" style="background:linear-gradient(160deg,var(--sky) 0%,var(--sky2) 50%,#0A2A52 100%)">
+        <div style="position:relative;z-index:1">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">Institution Admin</div>
+          <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:#fff;margin-bottom:12px">Dr. Amina Mwangi · Egerton</div>
+          <div style="display:flex;gap:12px">
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">842</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Enrolments</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">187</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Credentials</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:24px;font-weight:800;color:#fff">94%</div><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Accreditation</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="alert al-w"><span>⏳</span><span>2 accreditation documents outstanding — due October 30. KNQA submission pending.</span></div>
+
+        <div class="sec-label">Institution Quick Actions</div>
+        <div class="module-grid">
+          <div class="mod-card"><div class="mod-ico">📋</div><div class="mod-title">Accreditation</div><div class="mod-sub">2 pending</div></div>
+          <div class="mod-card"><div class="mod-ico">📥</div><div class="mod-title">Enrolment</div><div class="mod-sub">15 pending IPRS</div></div>
+          <div class="mod-card"><div class="mod-ico">📊</div><div class="mod-title">OBE Report</div><div class="mod-sub">Outcomes</div></div>
+          <div class="mod-card"><div class="mod-ico">👩‍🏫</div><div class="mod-title">Lecturers</div><div class="mod-sub">3 active</div></div>
+          <div class="mod-card"><div class="mod-ico">🔗</div><div class="mod-title">ERP/LTI</div><div class="mod-sub">Banner sync</div></div>
+          <div class="mod-card"><div class="mod-ico">📈</div><div class="mod-title">Analytics</div><div class="mod-sub">Power BI</div></div>
+        </div>
+
+        <div class="sec-label">Accreditation Status — KNQA</div>
+        <div class="card">
+          <div class="card-b" style="padding:12px 14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:13px;font-weight:700">PAQAF/HAQAA Submission</span>
+              <span class="badge bg-amber">2 pending</span>
+            </div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">✓</div><div class="list-main"><div class="list-title">CBE Framework</div></div><span class="badge bg-green">Approved</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(0,92,59,.1)">✓</div><div class="list-main"><div class="list-title">PLO Mapping</div></div><span class="badge bg-green">Approved</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(232,80,10,.1)">⏳</div><div class="list-main"><div class="list-title">OBE Attainment Report</div></div><span class="badge bg-red">Missing</span></div>
+            <div class="list-row"><div class="list-ico" style="background:rgba(232,80,10,.1)">⏳</div><div class="list-main"><div class="list-title">QA Checklist</div></div><span class="badge bg-red">Missing</span></div>
+            <button class="btn btn-jade btn-full" style="margin-top:10px">Submit to KNQA</button>
+          </div>
+        </div>
+
+        <div class="sec-label">ERP Integration (Banner LTI 1.3)</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px;font-size:12.5px">
+            <div class="list-row"><div class="list-main"><div class="list-title">LTI 1.3 Connection</div></div><span class="badge bg-green">Active</span></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Last Grade Sync</div></div><span style="font-size:11px;font-weight:700;color:var(--jade)">Today 06:00 AM</span></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Records Synced</div></div><span style="font-size:11px;font-weight:700">187 grades</span></div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- ══════ KNQA PAGE ══════════════════════════════════════════════════════ -->
+    <div class="page" id="page-knqa">
+      <div class="hero-grad" style="background:linear-gradient(160deg,#1A0A4A 0%,#3A1A7A 50%,#1A0A4A 100%)">
+        <div style="position:relative;z-index:1">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">KNQA National Portal</div>
+          <div style="font-family:var(--font-head);font-size:20px;font-weight:800;color:#fff;margin-bottom:12px">Dr. Catherine Wambua</div>
+          <div style="display:flex;gap:12px">
+            <div><div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:#fff">1,847</div><div style="font-size:9.5px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Qualifications</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:#fff">24</div><div style="font-size:9.5px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">RPL Queue</div></div>
+            <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+            <div><div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:#fff">4,280</div><div style="font-size:9.5px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px">Learners</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="sec-label">National Quick Actions</div>
+        <div class="module-grid">
+          <div class="mod-card"><div class="mod-ico">📋</div><div class="mod-title">Qualifications</div><div class="mod-sub">Registry</div></div>
+          <div class="mod-card"><div class="mod-ico">✅</div><div class="mod-title">RPL Review</div><div class="mod-sub">24 pending</div></div>
+          <div class="mod-card"><div class="mod-ico">🔍</div><div class="mod-title">Verify</div><div class="mod-sub">Credential</div></div>
+          <div class="mod-card"><div class="mod-ico">🏛️</div><div class="mod-title">Accreditation</div><div class="mod-sub">HEI submissions</div></div>
+          <div class="mod-card"><div class="mod-ico">📊</div><div class="mod-title">Analytics</div><div class="mod-sub">National data</div></div>
+          <div class="mod-card"><div class="mod-ico">📜</div><div class="mod-title">Audit Logs</div><div class="mod-sub">12-month</div></div>
+        </div>
+
+        <div class="sec-label">Credential Verification</div>
+        <div class="card">
+          <div class="card-b">
+            <div class="form-group" style="margin-bottom:10px">
+              <label>KNQA Reference or National ID</label>
+              <input placeholder="KNQA-2026-XXXXXXXX" style="font-family:var(--font-mono)">
+            </div>
+            <button class="btn btn-full" style="background:linear-gradient(135deg,#3A1A7A,#5A2AB0);color:#fff;margin-bottom:12px">Verify in National Database</button>
+            <div style="background:rgba(0,168,107,.06);border:1px solid rgba(0,168,107,.2);border-radius:10px;padding:12px">
+              <div style="font-size:11px;font-weight:800;color:var(--green-s);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✓ VERIFIED — Active</div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:3px">Soil Science &amp; Fertility Management</div>
+              <div style="font-size:11px;color:var(--text3)">Wanjiru Kamau · University of Nairobi · NQF 5</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">RPL Decision Queue</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(232,80,10,.1)">📋</div>
+              <div class="list-main">
+                <div class="list-title">Wanjiru Kamau — CROP-201</div>
+                <div class="list-sub">RPL-AOC-2026-0041 · 21 days · Dr. Mutua</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+                <button class="btn btn-jade btn-sm" style="font-size:10px;padding:5px 10px">Approve</button>
+                <button class="btn btn-outline btn-sm" style="font-size:10px;padding:5px 10px;border-color:var(--red-s);color:var(--red-s)">Reject</button>
+              </div>
+            </div>
+            <div class="list-row">
+              <div class="list-ico" style="background:rgba(192,57,43,.1)">📋</div>
+              <div class="list-main">
+                <div class="list-title">Peter Njoroge — IRR-101</div>
+                <div class="list-sub">RPL-AOC-2026-0038 · 24 days</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+                <button class="btn btn-jade btn-sm" style="font-size:10px;padding:5px 10px">Approve</button>
+                <button class="btn btn-outline btn-sm" style="font-size:10px;padding:5px 10px;border-color:var(--red-s);color:var(--red-s)">Reject</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">API Status</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-main"><div class="list-title">KNQA Qualification API</div></div><span style="display:flex;align-items:center;gap:4px;color:var(--green-s);font-weight:700;font-size:11px"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span>99.98%</span></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">IPRS Verify API</div></div><span style="display:flex;align-items:center;gap:4px;color:var(--green-s);font-weight:700;font-size:11px"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span>99.94%</span></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">eCitizen SSO</div></div><span style="display:flex;align-items:center;gap:4px;color:var(--green-s);font-weight:700;font-size:11px"><span style="width:6px;height:6px;background:var(--jade3);border-radius:50%;display:inline-block"></span>100%</span></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Last Qual Push</div></div><span style="font-size:11px;font-weight:700">Today 08:34 AM</span></div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- ══════ PROFILE PAGE ══════════════════════════════════════════════════ -->
+    <div class="page" id="page-profile">
+      <div class="hero-grad" style="padding-bottom:30px">
+        <div style="position:relative;z-index:1;display:flex;align-items:center;gap:14px">
+          <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--jade3),var(--sky2));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-weight:800;color:#fff;border:2.5px solid rgba(255,255,255,.25);flex-shrink:0">WK</div>
+          <div>
+            <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:#fff">Wanjiru Kamau</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px">AOC-LRN-2026-00341 · Nairobi</div>
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+              <span style="padding:3px 9px;background:rgba(255,255,255,.12);border-radius:99px;font-size:10px;font-weight:700;color:#fff">✓ IPRS Verified</span>
+              <span style="padding:3px 9px;background:rgba(255,255,255,.12);border-radius:99px;font-size:10px;font-weight:700;color:#fff">2 KNQA Credentials</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-area">
+
+        <div class="sec-label">Settings</div>
+        <div class="card">
+          <div class="card-b" style="padding:8px 14px">
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">Offline Mode</div><div class="ti-s">Save courses for offline access</div></div><label class="toggle"><input type="checkbox" checked onchange="toggleOffline(this)"><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">SMS Notifications</div><div class="ti-s">Africa is Talking · +254712345678</div></div><label class="toggle"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">Assignment Reminders</div><div class="ti-s">48 hrs before due date</div></div><label class="toggle"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">Exam Alerts</div><div class="ti-s">7 days, 1 day, 1 hr before</div></div><label class="toggle"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">KNQA Credential Alerts</div><div class="ti-s">When qualifications register</div></div><label class="toggle"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="ti-t">Data-Lite Mode</div><div class="ti-s">Reduce data use on mobile</div></div><label class="toggle"><input type="checkbox"><span class="tgl-sl"></span></label></div>
+            <div class="toggle-row" style="border-bottom:none"><div class="toggle-info"><div class="ti-t">AOC Intelligence</div><div class="ti-s">AI readiness &amp; job match alerts</div></div><label class="toggle"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+          </div>
+        </div>
+
+        <div class="sec-label">Offline Storage</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>Downloaded content</span><span style="font-weight:700">176 MB</span></div>
+            <div class="prog"><div class="prog-fill" style="width:35%"></div></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">176 MB of 500 MB used</div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn btn-outline btn-sm" style="flex:1">Manage Downloads</button>
+              <button class="btn btn-offline btn-sm" style="flex:1">Clear Cache</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Personal Information</div>
+        <div class="card">
+          <div class="card-b" style="padding:10px 14px">
+            <div class="list-row"><div class="list-main"><div class="list-title">National ID</div><div class="list-sub" style="font-family:var(--font-mono)">12345678 · IPRS Verified ✓</div></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Phone</div><div class="list-sub">+254 712 345 678</div></div></div>
+            <div class="list-row"><div class="list-main"><div class="list-title">Email</div><div class="list-sub">wanjiru.kamau@gmail.com</div></div></div>
+            <div class="list-row" style="border-bottom:none"><div class="list-main"><div class="list-title">County</div><div class="list-sub">Kiambu · Kenya</div></div></div>
+          </div>
+        </div>
+
+        <div class="card" style="background:rgba(232,80,10,.04);border-color:rgba(232,80,10,.2)">
+          <div class="card-b" style="text-align:center;padding:20px">
+            <div style="font-size:32px;margin-bottom:8px">📵</div>
+            <div style="font-size:14px;font-weight:700;color:var(--offline);margin-bottom:4px">Offline Ready</div>
+            <div style="font-size:12px;color:var(--text3)">2 courses available offline. Sync when connected to register completions with KNQA.</div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+    <!-- ══════ NOTIFICATIONS PAGE ══════════════════════════════════════════ -->
+    <div class="page" id="page-notifs">
+      <div class="top-bar">
+        <div><div class="tb-title">Notifications</div><div class="tb-sub">3 unread</div></div>
+        <button class="btn btn-outline btn-sm">Mark all read</button>
+      </div>
+      <div class="scroll-area" style="padding-top:4px">
+        <div class="card">
+          <div class="card-b" style="padding:8px 14px">
+            <div class="notif-item unread" style="background:rgba(0,92,59,.03)">
+              <div class="notif-ic" style="background:rgba(0,135,90,.1)">🎓</div>
+              <div style="flex:1">
+                <div class="notif-t">KNQA Qualification Registered</div>
+                <div class="notif-b">Soil Science micro-credential registered. Ref: KNQA-2026-00912847</div>
+                <div class="notif-time">2 hours ago · SMS sent</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item unread" style="background:rgba(184,115,51,.02)">
+              <div class="notif-ic" style="background:rgba(184,115,51,.1)">⏰</div>
+              <div style="flex:1">
+                <div class="notif-t">Assignment Due in 48 Hours</div>
+                <div class="notif-b">Module 7 Assessment for Agribusiness due Sep 22, 2026</div>
+                <div class="notif-time">Yesterday · SMS sent</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-ic" style="background:rgba(26,95,173,.1)">🎥</div>
+              <div style="flex:1">
+                <div class="notif-t">Live Session Starting Soon</div>
+                <div class="notif-b">Dr. Kariuki's Soil Science lab starts in 1 hour. Join via Zoom.</div>
+                <div class="notif-time">2 days ago</div>
+              </div>
+              <div class="unread-dot"></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-ic" style="background:rgba(0,135,90,.1)">✅</div>
+              <div style="flex:1">
+                <div class="notif-t">Quiz Passed</div>
+                <div class="notif-b">Module 5 score: 88%. Competency SOI-102 earned.</div>
+                <div class="notif-time">3 days ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-ic" style="background:rgba(232,80,10,.1)">📵</div>
+              <div style="flex:1">
+                <div class="notif-t">Offline Sync Complete</div>
+                <div class="notif-b">3 items synced: quiz attempt, forum post, RPL evidence upload</div>
+                <div class="notif-time">Last week</div>
+              </div>
+            </div>
+            <div class="notif-item" style="border-bottom:none">
+              <div class="notif-ic" style="background:rgba(0,135,90,.1)">💰</div>
+              <div style="flex:1">
+                <div class="notif-t">M-Pesa Payment Confirmed</div>
+                <div class="notif-b">KES 500 received (QK7XYZ789). Certificate download enabled.</div>
+                <div class="notif-time">3 months ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sp"></div>
+      </div>
+    </div>
+
+  </div><!-- /screen -->
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="navigate('home')">
+      <span class="nav-ico">🏠</span>
+      <span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-btn" id="nav-courses" onclick="navigate('courses')">
+      <span class="nav-ico">📚</span>
+      <span class="nav-lbl">Courses</span>
+    </button>
+    <button class="nav-btn" id="nav-notifs" onclick="navigate('notifs')" style="position:relative">
+      <span class="nav-ico">🔔</span>
+      <span class="nav-lbl">Alerts</span>
+      <span class="badge-pill">3</span>
+    </button>
+    <button class="nav-btn" id="nav-profile" onclick="navigate('profile')">
+      <span class="nav-ico">👤</span>
+      <span class="nav-lbl">Profile</span>
+    </button>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let isOffline = false;
+let currentRole = 'learner';
+let currentPage = 'home';
+
+// ── Role system ───────────────────────────────────────────────────────────────
+function setRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (role === 'learner')  navigate('home');
+  if (role === 'trainer')  navigate('trainer');
+  if (role === 'admin')    navigate('admin');
+  if (role === 'knqa')     navigate('knqa');
+
+  // Update bottom nav for role
+  const navHome    = document.getElementById('nav-home');
+  const navCourses = document.getElementById('nav-courses');
+  if (role === 'learner') {
+    navHome.querySelector('.nav-lbl').textContent = 'Home';
+    navCourses.querySelector('.nav-ico').textContent = '📚';
+    navCourses.querySelector('.nav-lbl').textContent = 'Courses';
+  } else if (role === 'trainer') {
+    navHome.querySelector('.nav-lbl').textContent = 'Dashboard';
+    navCourses.querySelector('.nav-ico').textContent = '📝';
+    navCourses.querySelector('.nav-lbl').textContent = 'Grade';
+  } else if (role === 'admin') {
+    navHome.querySelector('.nav-lbl').textContent = 'Dashboard';
+    navCourses.querySelector('.nav-ico').textContent = '🏛️';
+    navCourses.querySelector('.nav-lbl').textContent = 'Accreditation';
+  } else if (role === 'knqa') {
+    navHome.querySelector('.nav-lbl').textContent = 'National';
+    navCourses.querySelector('.nav-ico').textContent = '⚖️';
+    navCourses.querySelector('.nav-lbl').textContent = 'Registry';
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) {
+    target.classList.add('active');
+    currentPage = page;
+    document.getElementById('screen').scrollTop = 0;
+  }
+
+  // Update bottom nav active state
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const pageToNav = {
+    home:'nav-home', courses:'nav-courses', trainer:'nav-home',
+    admin:'nav-home', knqa:'nav-home', notifs:'nav-notifs',
+    profile:'nav-profile', exams:'nav-courses', rpl:'nav-courses',
+    creds:'nav-courses', fees:'nav-profile', placement:'nav-courses',
+    attendance:'nav-profile', catalogue:'nav-courses'
+  };
+  const navId = pageToNav[page];
+  if (navId) document.getElementById(navId)?.classList.add('active');
+}
+
+// ── Offline toggle ────────────────────────────────────────────────────────────
+function toggleOffline(checkbox) {
+  isOffline = !checkbox.checked;
+  applyOfflineState(isOffline);
+}
+
+function applyOfflineState(offline) {
+  isOffline = offline;
+  const sb = document.getElementById('status-bar');
+  const chip = document.getElementById('offline-chip');
+  const banner = document.getElementById('offline-banner');
+  const queueCard = document.getElementById('queue-card');
+  const wifiIcon = document.getElementById('wifi-icon');
+  const alertEl = document.getElementById('offline-courses-alert');
+
+  if (offline) {
+    sb.classList.add('offline-bar');
+    chip.classList.add('show');
+    banner.classList.add('show');
+    if (queueCard) queueCard.style.display = 'flex';
+    wifiIcon.textContent = '📵';
+    if (alertEl) alertEl.classList.add('show');
+  } else {
+    sb.classList.remove('offline-bar');
+    chip.classList.remove('show');
+    banner.classList.remove('show');
+    if (queueCard) queueCard.style.display = 'none';
+    wifiIcon.textContent = '📶';
+    if (alertEl) alertEl.style.display = 'none';
+  }
+}
+
+// ── Simulate sync ─────────────────────────────────────────────────────────────
+function simulateSync() {
+  const syncBar = document.getElementById('sync-bar');
+  const queueCard = document.getElementById('queue-card');
+  const banner = document.getElementById('offline-banner');
+
+  queueCard.style.display = 'none';
+  syncBar.classList.add('show');
+  banner.classList.remove('show');
+
+  setTimeout(() => {
+    syncBar.classList.remove('show');
+    // Show success briefly
+    const tempAlert = document.createElement('div');
+    tempAlert.className = 'offline-banner show';
+    tempAlert.style.background = 'var(--jade)';
+    tempAlert.innerHTML = '<span>✓</span><span>3 items synced to KNQA &amp; server</span>';
+    document.getElementById('screen').prepend(tempAlert);
+    setTimeout(() => tempAlert.remove(), 2500);
+  }, 2200);
+}
+
+// ── Demo: simulate going offline after 3 seconds ──────────────────────────────
+// (commented out — controlled by profile toggle instead)
+// setTimeout(() => applyOfflineState(true), 3000);
+
+// Init
+navigate('home');
+</script>
+</body>
+</html>
