@@ -1,10 +1,9 @@
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-sans)}
 .wrap{padding:16px 0}
 .role-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.role-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;transition:all .18s;font-weight:500}
+.role-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer}
 .role-btn:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
 .role-btn.active{border-color:transparent;color:#fff;font-weight:500}
 .role-btn.learner.active{background:#185FA5}
@@ -13,9 +12,9 @@ body{font-family:var(--font-sans)}
 .role-btn.knqa.active{background:#534AB7}
 .role-btn.employer.active{background:#993C1D}
 .role-btn.moe.active{background:#5F5E5A}
-.info-panel{border-radius:var(--border-radius-lg);padding:14px 18px;margin-bottom:14px;font-size:13px;border:1px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);line-height:1.55;min-height:52px}
-.info-panel strong{color:var(--color-text-primary);font-weight:500}
-svg text{font-family:var(--font-sans)}
+.info-panel{border-radius:var(--border-radius-lg);padding:14px 18px;margin-bottom:14px;font-size:13px;border:1px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:black}
+.info-panel strong{color:black;font-weight:500}
+svg text{font-family:var(--font-sans);fill:black}
 </style>
 <div class="wrap">
 <div class="role-bar">
@@ -27,7 +26,7 @@ svg text{font-family:var(--font-sans)}
   <button class="role-btn moe" onclick="setRole('moe')">National Admin</button>
 </div>
 <div class="info-panel" id="info">
-  <strong>Learner / Farmer</strong> — Registers via IPRS or eCitizen SSO → browses course catalogue → enrols → follows CBE modules → takes assessments → earns micro-credentials → tracks qualifications on KNQA. RPL allows credit for prior work experience.
+  <strong>Learner / Farmer</strong> — Registers via IPRS or eCitizen SSO → browses course catalogue → enrols → follows CBE modules → takes assessments → earns micro-credentials → tracks [...]
 </div>
 <svg width="100%" viewBox="0 0 680 820" id="map">
 <defs>
@@ -47,44 +46,44 @@ svg text{font-family:var(--font-sans)}
 
 <!-- Zone: External systems (right strip) -->
 <rect x="552" y="18" width="110" height="784" rx="10" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
-<text class="th" x="607" y="38" text-anchor="middle" fill="Black" font-size="11" font-weight="500">Integrations</text>
+<text class="th" x="607" y="38" text-anchor="middle" fill="black" font-size="11" font-weight="500">Integrations</text>
 
 <!-- ══ USER ROLE NODES (left column) ══ -->
 <!-- Learner -->
 <g class="node c-blue" id="u-learner" onclick="setRole('learner')">
   <rect x="26" y="52" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="72" text-anchor="middle" dominant-baseline="central" font-size="12">Learner</text>
-  <text class="ts" x="73" y="90" text-anchor="middle" dominant-baseline="central">Farmer · Youth</text>
+  <text class="th" x="73" y="72" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Learner</text>
+  <text class="ts" x="73" y="90" text-anchor="middle" dominant-baseline="central" fill="black">Farmer · Youth</text>
 </g>
 <!-- Lecturer -->
 <g class="node c-green" id="u-lecturer" onclick="setRole('lecturer')">
   <rect x="26" y="118" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="138" text-anchor="middle" dominant-baseline="central" font-size="12">Lecturer</text>
-  <text class="ts" x="73" y="156" text-anchor="middle" dominant-baseline="central">Course dev</text>
+  <text class="th" x="73" y="138" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Lecturer</text>
+  <text class="ts" x="73" y="156" text-anchor="middle" dominant-baseline="central" fill="black">Course dev</text>
 </g>
 <!-- HEI Admin -->
 <g class="node c-amber" id="u-hei" onclick="setRole('hei')">
   <rect x="26" y="184" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="204" text-anchor="middle" dominant-baseline="central" font-size="12">HEI Admin</text>
-  <text class="ts" x="73" y="222" text-anchor="middle" dominant-baseline="central">TVET manager</text>
+  <text class="th" x="73" y="204" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">HEI Admin</text>
+  <text class="ts" x="73" y="222" text-anchor="middle" dominant-baseline="central" fill="black">TVET manager</text>
 </g>
 <!-- KNQA -->
 <g class="node c-purple" id="u-knqa" onclick="setRole('knqa')">
   <rect x="26" y="250" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="270" text-anchor="middle" dominant-baseline="central" font-size="12">KNQA</text>
-  <text class="ts" x="73" y="288" text-anchor="middle" dominant-baseline="central">Accreditor</text>
+  <text class="th" x="73" y="270" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">KNQA</text>
+  <text class="ts" x="73" y="288" text-anchor="middle" dominant-baseline="central" fill="black">Accreditor</text>
 </g>
 <!-- Employer -->
 <g class="node c-coral" id="u-employer" onclick="setRole('employer')">
   <rect x="26" y="316" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="336" text-anchor="middle" dominant-baseline="central" font-size="12">Employer</text>
-  <text class="ts" x="73" y="354" text-anchor="middle" dominant-baseline="central">Industry · HR</text>
+  <text class="th" x="73" y="336" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Employer</text>
+  <text class="ts" x="73" y="354" text-anchor="middle" dominant-baseline="central" fill="black">Industry · HR</text>
 </g>
 <!-- National Admin -->
 <g class="node c-gray" id="u-moe" onclick="setRole('moe')">
   <rect x="26" y="382" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="73" y="402" text-anchor="middle" dominant-baseline="central" font-size="12">Nat. Admin</text>
-  <text class="ts" x="73" y="420" text-anchor="middle" dominant-baseline="central">MoE · KENET</text>
+  <text class="th" x="73" y="402" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Nat. Admin</text>
+  <text class="ts" x="73" y="420" text-anchor="middle" dominant-baseline="central" fill="black">MoE · KENET</text>
 </g>
 
 <!-- ══ PLATFORM WORKFLOW ZONES ══ -->
@@ -94,19 +93,19 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="68" dominant-baseline="central" fill="black" font-size="12" font-weight="500">A  Identity &amp; access</text>
 <g class="node c-blue" id="p-iprs">
   <rect x="164" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="204" y="98" text-anchor="middle" dominant-baseline="central">IPRS verify</text>
+  <text class="ts" x="204" y="98" text-anchor="middle" dominant-baseline="central" fill="black">IPRS verify</text>
 </g>
 <g class="node c-blue" id="p-ecitizen">
   <rect x="252" y="80" width="90" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="297" y="98" text-anchor="middle" dominant-baseline="central">eCitizen SSO</text>
+  <text class="ts" x="297" y="98" text-anchor="middle" dominant-baseline="central" fill="black">eCitizen SSO</text>
 </g>
 <g class="node c-blue" id="p-rbac">
   <rect x="350" y="80" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="390" y="98" text-anchor="middle" dominant-baseline="central">RBAC roles</text>
+  <text class="ts" x="390" y="98" text-anchor="middle" dominant-baseline="central" fill="black">RBAC roles</text>
 </g>
 <g class="node c-blue" id="p-sso">
   <rect x="438" y="80" width="82" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="479" y="98" text-anchor="middle" dominant-baseline="central">Profile setup</text>
+  <text class="ts" x="479" y="98" text-anchor="middle" dominant-baseline="central" fill="black">Profile setup</text>
 </g>
 
 <!-- ── B: Course & Content ── -->
@@ -114,19 +113,19 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="160" dominant-baseline="central" fill="black" font-size="12" font-weight="500">B  Course management &amp; LCMS</text>
 <g class="node c-green" id="p-cat">
   <rect x="164" y="174" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="204" y="192" text-anchor="middle" dominant-baseline="central">Catalogue</text>
+  <text class="ts" x="204" y="192" text-anchor="middle" dominant-baseline="central" fill="black">Catalogue</text>
 </g>
 <g class="node c-green" id="p-enrol">
   <rect x="252" y="174" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="292" y="192" text-anchor="middle" dominant-baseline="central">Enrolment</text>
+  <text class="ts" x="292" y="192" text-anchor="middle" dominant-baseline="central" fill="black">Enrolment</text>
 </g>
 <g class="node c-green" id="p-cbe">
   <rect x="340" y="174" width="88" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="384" y="192" text-anchor="middle" dominant-baseline="central">CBE modules</text>
+  <text class="ts" x="384" y="192" text-anchor="middle" dominant-baseline="central" fill="black">CBE modules</text>
 </g>
 <g class="node c-green" id="p-res">
   <rect x="436" y="174" width="84" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="478" y="192" text-anchor="middle" dominant-baseline="central">Resource hub</text>
+  <text class="ts" x="478" y="192" text-anchor="middle" dominant-baseline="central" fill="black">Resource hub</text>
 </g>
 
 <!-- ── C: Assessment & Certification ── -->
@@ -134,19 +133,19 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="276" dominant-baseline="central" fill="black" font-size="12" font-weight="500">C  Assessment &amp; certification</text>
 <g class="node c-amber" id="p-quiz">
   <rect x="164" y="290" width="76" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="202" y="308" text-anchor="middle" dominant-baseline="central">Assessments</text>
+  <text class="ts" x="202" y="308" text-anchor="middle" dominant-baseline="central" fill="black">Assessments</text>
 </g>
 <g class="node c-amber" id="p-rpl">
   <rect x="248" y="290" width="76" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="286" y="308" text-anchor="middle" dominant-baseline="central">RPL process</text>
+  <text class="ts" x="286" y="308" text-anchor="middle" dominant-baseline="central" fill="black">RPL process</text>
 </g>
 <g class="node c-amber" id="p-cert">
   <rect x="332" y="290" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="372" y="308" text-anchor="middle" dominant-baseline="central">Certification</text>
+  <text class="ts" x="372" y="308" text-anchor="middle" dominant-baseline="central" fill="black">Certification</text>
 </g>
 <g class="node c-amber" id="p-cred">
   <rect x="420" y="290" width="100" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="470" y="308" text-anchor="middle" dominant-baseline="central">Digital credentials</text>
+  <text class="ts" x="470" y="308" text-anchor="middle" dominant-baseline="central" fill="black">Digital credentials</text>
 </g>
 
 <!-- ── D: Live Learning & Comms ── -->
@@ -154,19 +153,19 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="392" dominant-baseline="central" fill="black" font-size="12" font-weight="500">D  Live learning &amp; communications</text>
 <g class="node c-teal" id="p-zoom">
   <rect x="164" y="406" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="204" y="424" text-anchor="middle" dominant-baseline="central">Zoom classes</text>
+  <text class="ts" x="204" y="424" text-anchor="middle" dominant-baseline="central" fill="black">Zoom classes</text>
 </g>
 <g class="node c-teal" id="p-forum">
   <rect x="252" y="406" width="76" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="290" y="424" text-anchor="middle" dominant-baseline="central">Forums</text>
+  <text class="ts" x="290" y="424" text-anchor="middle" dominant-baseline="central" fill="black">Forums</text>
 </g>
 <g class="node c-teal" id="p-sms">
   <rect x="336" y="406" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="376" y="424" text-anchor="middle" dominant-baseline="central">SMS alerts</text>
+  <text class="ts" x="376" y="424" text-anchor="middle" dominant-baseline="central" fill="black">SMS alerts</text>
 </g>
 <g class="node c-teal" id="p-msg">
   <rect x="424" y="406" width="96" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="472" y="424" text-anchor="middle" dominant-baseline="central">Messaging</text>
+  <text class="ts" x="472" y="424" text-anchor="middle" dominant-baseline="central" fill="black">Messaging</text>
 </g>
 
 <!-- ── E: Analytics & Governance ── -->
@@ -174,19 +173,19 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="508" dominant-baseline="central" fill="black" font-size="12" font-weight="500">E  Analytics, governance &amp; payments</text>
 <g class="node c-purple" id="p-dash">
   <rect x="164" y="522" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="204" y="540" text-anchor="middle" dominant-baseline="central">Dashboards</text>
+  <text class="ts" x="204" y="540" text-anchor="middle" dominant-baseline="central" fill="black">Dashboards</text>
 </g>
 <g class="node c-purple" id="p-bi">
   <rect x="252" y="522" width="76" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="290" y="540" text-anchor="middle" dominant-baseline="central">BI / reports</text>
+  <text class="ts" x="290" y="540" text-anchor="middle" dominant-baseline="central" fill="black">BI / reports</text>
 </g>
 <g class="node c-purple" id="p-pay">
   <rect x="336" y="522" width="80" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="376" y="540" text-anchor="middle" dominant-baseline="central">M-Pesa pay</text>
+  <text class="ts" x="376" y="540" text-anchor="middle" dominant-baseline="central" fill="black">M-Pesa pay</text>
 </g>
 <g class="node c-purple" id="p-audit">
   <rect x="424" y="522" width="96" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="472" y="540" text-anchor="middle" dominant-baseline="central">Audit logs</text>
+  <text class="ts" x="472" y="540" text-anchor="middle" dominant-baseline="central" fill="black">Audit logs</text>
 </g>
 
 <!-- ── F: Employer & Labour ── -->
@@ -194,67 +193,67 @@ svg text{font-family:var(--font-sans)}
 <text class="th" x="165" y="624" dominant-baseline="central" fill="black" font-size="12" font-weight="500">F  Employer portal &amp; labour market</text>
 <g class="node c-coral" id="p-verify">
   <rect x="164" y="638" width="110" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="219" y="656" text-anchor="middle" dominant-baseline="central">Credential verify</text>
+  <text class="ts" x="219" y="656" text-anchor="middle" dominant-baseline="central" fill="black">Credential verify</text>
 </g>
 <g class="node c-coral" id="p-jobs">
   <rect x="282" y="638" width="90" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="327" y="656" text-anchor="middle" dominant-baseline="central">Job postings</text>
+  <text class="ts" x="327" y="656" text-anchor="middle" dominant-baseline="central" fill="black">Job postings</text>
 </g>
 <g class="node c-coral" id="p-klmis">
   <rect x="380" y="638" width="140" height="36" rx="6" stroke-width="0.5"/>
-  <text class="ts" x="450" y="656" text-anchor="middle" dominant-baseline="central">KLMIS skills data</text>
+  <text class="ts" x="450" y="656" text-anchor="middle" dominant-baseline="central" fill="black">KLMIS skills data</text>
 </g>
 
 <!-- ══ EXTERNAL INTEGRATION NODES (right column) ══ -->
 <g class="node c-purple" id="e-knqa">
   <rect x="560" y="52" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="72" text-anchor="middle" dominant-baseline="central" font-size="12">KNQA DB</text>
-  <text class="ts" x="607" y="90" text-anchor="middle" dominant-baseline="central">Qualifications</text>
+  <text class="th" x="607" y="72" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">KNQA DB</text>
+  <text class="ts" x="607" y="90" text-anchor="middle" dominant-baseline="central" fill="black">Qualifications</text>
 </g>
 <g class="node c-purple" id="e-iprs">
   <rect x="560" y="118" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="138" text-anchor="middle" dominant-baseline="central" font-size="12">IPRS</text>
-  <text class="ts" x="607" y="156" text-anchor="middle" dominant-baseline="central">Identity</text>
+  <text class="th" x="607" y="138" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">IPRS</text>
+  <text class="ts" x="607" y="156" text-anchor="middle" dominant-baseline="central" fill="black">Identity</text>
 </g>
 <g class="node c-purple" id="e-eco">
   <rect x="560" y="184" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="204" text-anchor="middle" dominant-baseline="central" font-size="12">eCitizen</text>
-  <text class="ts" x="607" y="222" text-anchor="middle" dominant-baseline="central">SSO</text>
+  <text class="th" x="607" y="204" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">eCitizen</text>
+  <text class="ts" x="607" y="222" text-anchor="middle" dominant-baseline="central" fill="black">SSO</text>
 </g>
 <g class="node c-teal" id="e-zoom">
   <rect x="560" y="250" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="270" text-anchor="middle" dominant-baseline="central" font-size="12">Zoom API</text>
-  <text class="ts" x="607" y="288" text-anchor="middle" dominant-baseline="central">Live sessions</text>
+  <text class="th" x="607" y="270" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Zoom API</text>
+  <text class="ts" x="607" y="288" text-anchor="middle" dominant-baseline="central" fill="black">Live sessions</text>
 </g>
 <g class="node c-teal" id="e-sms">
   <rect x="560" y="316" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="336" text-anchor="middle" dominant-baseline="central" font-size="12">AT / SMS</text>
-  <text class="ts" x="607" y="354" text-anchor="middle" dominant-baseline="central">Notifications</text>
+  <text class="th" x="607" y="336" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">AT / SMS</text>
+  <text class="ts" x="607" y="354" text-anchor="middle" dominant-baseline="central" fill="black">Notifications</text>
 </g>
 <g class="node c-coral" id="e-mpesa">
   <rect x="560" y="382" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="402" text-anchor="middle" dominant-baseline="central" font-size="12">M-Pesa</text>
-  <text class="ts" x="607" y="420" text-anchor="middle" dominant-baseline="central">Daraja API</text>
+  <text class="th" x="607" y="402" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">M-Pesa</text>
+  <text class="ts" x="607" y="420" text-anchor="middle" dominant-baseline="central" fill="black">Daraja API</text>
 </g>
 <g class="node c-amber" id="e-erp">
   <rect x="560" y="448" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="468" text-anchor="middle" dominant-baseline="central" font-size="12">HEI ERPs</text>
-  <text class="ts" x="607" y="486" text-anchor="middle" dominant-baseline="central">Banner · LTI</text>
+  <text class="th" x="607" y="468" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">HEI ERPs</text>
+  <text class="ts" x="607" y="486" text-anchor="middle" dominant-baseline="central" fill="black">Banner · LTI</text>
 </g>
 <g class="node c-amber" id="e-klmis">
   <rect x="560" y="514" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="534" text-anchor="middle" dominant-baseline="central" font-size="12">KLMIS</text>
-  <text class="ts" x="607" y="552" text-anchor="middle" dominant-baseline="central">Labour data</text>
+  <text class="th" x="607" y="534" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">KLMIS</text>
+  <text class="ts" x="607" y="552" text-anchor="middle" dominant-baseline="central" fill="black">Labour data</text>
 </g>
 <g class="node c-gray" id="e-bi">
   <rect x="560" y="580" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="600" text-anchor="middle" dominant-baseline="central" font-size="12">Power BI</text>
-  <text class="ts" x="607" y="618" text-anchor="middle" dominant-baseline="central">Analytics</text>
+  <text class="th" x="607" y="600" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">Power BI</text>
+  <text class="ts" x="607" y="618" text-anchor="middle" dominant-baseline="central" fill="black">Analytics</text>
 </g>
 <g class="node c-gray" id="e-kenet">
   <rect x="560" y="646" width="94" height="52" rx="8" stroke-width="0.5"/>
-  <text class="th" x="607" y="666" text-anchor="middle" dominant-baseline="central" font-size="12">KENET</text>
-  <text class="ts" x="607" y="684" text-anchor="middle" dominant-baseline="central">Hosting · CDN</text>
+  <text class="th" x="607" y="666" text-anchor="middle" dominant-baseline="central" font-size="12" fill="black">KENET</text>
+  <text class="ts" x="607" y="684" text-anchor="middle" dominant-baseline="central" fill="black">Hosting · CDN</text>
 </g>
 
 <!-- ══ CONNECTOR LINES — users → platform zones ══ -->
@@ -309,55 +308,55 @@ svg text{font-family:var(--font-sans)}
 
 <!-- ── Legend ── -->
 <rect x="152" y="700" width="376" height="98" rx="8" fill="none" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>
-<text class="ts" x="340" y="718" text-anchor="middle" fill="var(--color-text-tertiary)" font-weight="500">Legend</text>
+<text class="ts" x="340" y="718" text-anchor="middle" fill="black" font-weight="500">Legend</text>
 <rect x="168" y="730" width="10" height="10" rx="2" fill="#B5D4F4" stroke="#378ADD" stroke-width="0.5"/>
-<text class="ts" x="183" y="739" fill="var(--color-text-secondary)">Identity zone (A)</text>
+<text class="ts" x="183" y="739" fill="black">Identity zone (A)</text>
 <rect x="280" y="730" width="10" height="10" rx="2" fill="#C0DD97" stroke="#639922" stroke-width="0.5"/>
-<text class="ts" x="295" y="739" fill="var(--color-text-secondary)">Course LCMS (B)</text>
+<text class="ts" x="295" y="739" fill="black">Course LCMS (B)</text>
 <rect x="395" y="730" width="10" height="10" rx="2" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
-<text class="ts" x="410" y="739" fill="var(--color-text-secondary)">Assessment (C)</text>
+<text class="ts" x="410" y="739" fill="black">Assessment (C)</text>
 <rect x="168" y="754" width="10" height="10" rx="2" fill="#9FE1CB" stroke="#1D9E75" stroke-width="0.5"/>
-<text class="ts" x="183" y="763" fill="var(--color-text-secondary)">Live &amp; comms (D)</text>
+<text class="ts" x="183" y="763" fill="black">Live &amp; comms (D)</text>
 <rect x="280" y="754" width="10" height="10" rx="2" fill="#AFA9EC" stroke="#7F77DD" stroke-width="0.5"/>
-<text class="ts" x="295" y="763" fill="var(--color-text-secondary)">Analytics (E)</text>
+<text class="ts" x="295" y="763" fill="black">Analytics (E)</text>
 <rect x="395" y="754" width="10" height="10" rx="2" fill="#F5C4B3" stroke="#D85A30" stroke-width="0.5"/>
-<text class="ts" x="410" y="763" fill="var(--color-text-secondary)">Employer (F)</text>
+<text class="ts" x="410" y="763" fill="black">Employer (F)</text>
 <line x1="168" y1="781" x2="202" y2="781" stroke="#534AB7" stroke-width="1" marker-end="url(#arr)" stroke-dasharray="4 3"/>
-<text class="ts" x="208" y="785" fill="var(--color-text-secondary)">Qualification push to KNQA</text>
+<text class="ts" x="208" y="785" fill="black">Qualification push to KNQA</text>
 <line x1="350" y1="781" x2="384" y2="781" stroke="var(--color-text-tertiary)" stroke-width="1" marker-end="url(#arr)"/>
-<text class="ts" x="390" y="785" fill="var(--color-text-secondary)">Standard data flow</text>
+<text class="ts" x="390" y="785" fill="black">Standard data flow</text>
 </svg>
 </div>
 <script>
 const roles={
   learner:{
     label:"Learner / Farmer",color:"#185FA5",
-    text:"<strong>Learner / Farmer</strong> — Registers via IPRS or eCitizen SSO → browses course catalogue → enrols → follows CBE modules → takes assessments → earns micro-credentials → tracks qualifications on KNQA. RPL allows credit for prior work experience. Receives SMS alerts for deadlines, results, and Zoom session reminders.",
+    text:"<strong>Learner / Farmer</strong> — Registers via IPRS or eCitizen SSO → browses course catalogue → enrols → follows CBE modules → takes assessments → earns micro-credentials → tracks [...]",
     highlight:["u-learner","p-iprs","p-ecitizen","p-rbac","p-cat","p-enrol","p-cbe","p-quiz","p-rpl","p-cert","p-cred","p-zoom","p-sms","p-dash","e-iprs","e-eco","e-knqa","e-sms","e-zoom"]
   },
   lecturer:{
     label:"Lecturer / Course Developer",color:"#3B6D11",
-    text:"<strong>Lecturer / Course Developer</strong> — Logs in via SSO → builds and uploads CBE course content and assessments → schedules Zoom virtual classrooms → monitors learner progress on trainer dashboard → communicates via forums and messaging → submits courses for KNQA accreditation → exports reports. Uses HEI ERP via LTI for grade passback.",
+    text:"<strong>Lecturer / Course Developer</strong> — Logs in via SSO → builds and uploads CBE course content and assessments → schedules Zoom virtual classrooms → monitors learner progress [...]",
     highlight:["u-lecturer","p-ecitizen","p-rbac","p-cat","p-enrol","p-cbe","p-res","p-quiz","p-zoom","p-forum","p-msg","p-dash","p-bi","e-eco","e-zoom","e-erp"]
   },
   hei:{
     label:"HEI / TVET Admin",color:"#854F0B",
-    text:"<strong>HEI / TVET Admin</strong> — Manages institutional course catalogue → assigns lecturers to courses → monitors cohort performance on institution dashboard → sets up LTI connection to campus ERP → reviews and approves course content → coordinates with KNQA for programme accreditation → generates enrolment and completion reports.",
+    text:"<strong>HEI / TVET Admin</strong> — Manages institutional course catalogue → assigns lecturers to courses → monitors cohort performance on institution dashboard → sets up LTI connect [...]",
     highlight:["u-hei","p-rbac","p-cat","p-enrol","p-cbe","p-cert","p-dash","p-bi","p-audit","e-erp","e-knqa"]
   },
   knqa:{
     label:"KNQA / MoE",color:"#534AB7",
-    text:"<strong>KNQA / MoE</strong> — Receives qualification registration submissions via API → reviews RPL applications → approves and registers qualifications in the national database → issues KNQA reference numbers and digital certificates → sets governance frameworks → monitors platform compliance → accesses cross-institutional analytics via Power BI.",
+    text:"<strong>KNQA / MoE</strong> — Receives qualification registration submissions via API → reviews RPL applications → approves and registers qualifications in the national database → is [...]",
     highlight:["u-knqa","p-rpl","p-cert","p-cred","p-dash","p-bi","p-audit","e-knqa","e-bi"]
   },
   employer:{
     label:"Employer / Industry",color:"#993C1D",
-    text:"<strong>Employer / Industry</strong> — Accesses the public credential verification endpoint using KNQA reference numbers → posts job and internship opportunities targeted at graduates with specific competencies → sponsors cohorts of learners in sector-relevant courses → queries aggregated graduate skill profiles → feeds vacancy data into KLMIS for national workforce planning.",
+    text:"<strong>Employer / Industry</strong> — Accesses the public credential verification endpoint using KNQA reference numbers → posts job and internship opportunities targeted at graduates wi [...]",
     highlight:["u-employer","p-verify","p-jobs","p-klmis","e-klmis"]
   },
   moe:{
     label:"National Admin (MoE / KENET)",color:"#444441",
-    text:"<strong>National Admin</strong> — Manages platform infrastructure on KENET servers → maintains API credentials and security certificates → runs Power BI national dashboards for MoE leadership → oversees cross-institutional data flows → manages KNQA, IPRS, and eCitizen API agreements → controls audit log retention and data protection compliance.",
+    text:"<strong>National Admin</strong> — Manages platform infrastructure on KENET servers → maintains API credentials and security certificates → runs Power BI national dashboards for MoE lea [...]",
     highlight:["u-moe","p-dash","p-bi","p-audit","e-knqa","e-iprs","e-eco","e-bi","e-kenet"]
   }
 };
